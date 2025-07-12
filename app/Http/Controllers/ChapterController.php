@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Chapter;
 use App\Models\Manga;
+use App\Models\History;
+use Illuminate\Support\Facades\Auth;
 
 class ChapterController extends Controller
 {
@@ -15,7 +17,19 @@ class ChapterController extends Controller
                           ->published()
                           ->firstOrFail();
         
-        // Get next and previous chapters
+        if (Auth::check()) {
+            History::updateOrCreate(
+                [
+                    'user_id' => Auth::id(),
+                    'manga_id' => $chapter->manga_id,
+                    'chapter_id' => $chapter->id,
+                ],
+                [
+                    'updated_at' => now()
+                ]
+            );
+        }
+        
         $nextChapter = Chapter::where('manga_id', $chapter->manga_id)
                              ->where('number', '>', $chapter->number)
                              ->published()

@@ -106,11 +106,11 @@
                 <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                     @foreach($chapters as $chapter)
                         @if($chapter->status == 'published' || $chapter->status == 'fixed')
-                            <div class="bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 rounded p-3 transition duration-200 border border-gray-200 dark:border-gray-600">
+                            <div class="bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 rounded p-3 transition duration-200 border border-gray-200 dark:border-gray-600 {{ in_array($chapter->id, $readChapters) ?  : '' }}">
                                 <a href="{{ route('chapter.show', $chapter->slug) }}" 
                                    class="block hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                                     <div class="flex items-center justify-between">
-                                        <div class="text-sm font-medium text-gray-800 dark:text-gray-200">
+                                        <div class="text-sm font-medium text-gray-800 dark:text-gray-200 {{ in_array($chapter->id, $readChapters) ? 'text-red-600 dark:text-red-600' : '' }}">
                                             Chapter {{ $chapter->number }}
                                         </div>
                                         @if($chapter->status == 'fixed')
@@ -119,7 +119,7 @@
                                             </span>
                                         @endif
                                     </div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1'' }}">
                                         {{ $chapter->created_at->format('d M Y') }}
                                     </div>
                                 </a>
