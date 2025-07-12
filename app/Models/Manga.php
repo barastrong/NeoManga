@@ -38,4 +38,46 @@ class Manga extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Relasi: Manga memiliki banyak Rating
+     */
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    /**
+     * Relasi: Manga memiliki banyak Bookmark
+     */
+    public function bookmarks()
+    {
+        return $this->hasMany(Bookmark::class);
+    }
+
+    /**
+     * Relasi: Manga memiliki banyak Chapter
+     */
+    public function chapters()
+    {
+        return $this->hasMany(Chapter::class);
+    }
+
+    /**
+     * Accessor untuk mendapatkan jumlah followers (bookmarks)
+     */
+    public function getFollowersCountAttribute()
+    {
+        return $this->bookmarks()->count();
+    }
+
+    /**
+     * Method untuk cek apakah manga sudah dibookmark oleh user tertentu
+     */
+    public function isBookmarkedBy($userId)
+    {
+        if (!$userId) return false;
+        
+        return $this->bookmarks()->where('user_id', $userId)->exists();
+    }
 }
