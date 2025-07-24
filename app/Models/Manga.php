@@ -80,4 +80,16 @@ class Manga extends Model
         
         return $this->bookmarks()->where('user_id', $userId)->exists();
     }
+    // Di dalam User.php (default Laravel model)
+
+public function comments()
+{
+    return $this->hasMany(Comment::class);
+}
+
+    public function latestPublishedChapter()
+    {
+        // Di sini kita memanggil scopePublished()
+        return $this->hasOne(Chapter::class)->published()->latest('id');
+    }
 }

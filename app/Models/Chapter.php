@@ -188,12 +188,10 @@ class Chapter extends Model
         return asset('images/no-image.png');
     }
 
-    /**
-     * Method untuk mendapatkan URL chapter
-     * TODO: Uncomment this when blade view is ready
-     */
-    // public function getUrlAttribute()
-    // {
-    //     return route('chapter.show', $this->slug);
-    // }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+    
+
 }

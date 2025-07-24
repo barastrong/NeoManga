@@ -32,7 +32,7 @@ class ChapterResource extends Resource
 
     protected static ?string $pluralLabel = 'Chapters';
 
-    protected static ?string $navigationGroup = 'Manga Management';
+    protected static ?string $navigationGroup = 'Content Management';
 
     protected static ?int $navigationSort = 2;
 
@@ -63,15 +63,19 @@ class ChapterResource extends Resource
                             ->numeric()
                             ->required()
                             ->reactive()
-                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                $mangaId = $get('manga_id');
-                                if ($mangaId && $state) {
-                                    $manga = Manga::find($mangaId);
-                                    if ($manga) {
-                                        $set('slug', Str::slug($manga->title . '-chapter-' . $state));
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if ($state) {
+                                    $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*_-+=';
+                                    $random = '';
+                                    for ($i = 0; $i < 10; $i++) {
+                                        $random .= $chars[random_int(0, strlen($chars) - 1)];
                                     }
+
+                                    $slug = '*' . $random;
+                                    $set('slug', $slug);
                                 }
                             }),
+
 
                         TextInput::make('slug')
                             ->label('Slug')

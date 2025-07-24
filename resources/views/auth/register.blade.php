@@ -239,12 +239,15 @@
                 // Reset semua pesan error
                 [nameError, emailError, passwordError, passwordConfirmationError].forEach(el => el.classList.add('hidden'));
 
-                // Validasi Nama
-                if (!name) {
-                    nameError.textContent = 'Nama lengkap wajib diisi.';
-                    nameError.classList.remove('hidden');
-                    hasError = true;
-                }
+            if (!name) {
+                nameError.textContent = 'Nama lengkap wajib diisi.';
+                nameError.classList.remove('hidden');
+                hasError = true;
+            } else if (/\s/.test(name)) {
+                nameError.textContent = 'Nama tidak boleh mengandung spasi.';
+                nameError.classList.remove('hidden');
+                hasError = true;
+            }
 
                 // Validasi Email
                 if (!email) {

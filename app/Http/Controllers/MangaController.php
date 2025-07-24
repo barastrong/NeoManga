@@ -10,19 +10,10 @@ use Illuminate\Support\Facades\Auth;
 
 class MangaController extends Controller
 {
-    public function index()
-    {
-        $mangas = Manga::with(['genres', 'user'])
-                       ->orderBy('created_at', 'desc')
-                       ->paginate(12);
-        
-        return view('manga.index', compact('mangas'));
-    }
-
     public function show($slug)
     {
         $manga = Manga::where('slug', $slug)
-                      ->with(['genres', 'user', 'bookmarks'])
+                      ->with(['genres', 'user', 'bookmarks', 'comments'])
                       ->firstOrFail();
         
         $chapters = Chapter::where('manga_id', $manga->id)

@@ -49,4 +49,13 @@ class User extends Authenticatable
             'otp_expires_at' => 'datetime',
         ];
     }
+        /**
+     * Check if the user has an admin role.
+     *
+     * @return bool
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
 }

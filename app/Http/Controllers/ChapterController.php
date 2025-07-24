@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Chapter;
-use App\Models\Manga;
 use App\Models\History;
+use App\Models\Comment;
 use Illuminate\Support\Facades\Auth;
 
 class ChapterController extends Controller
@@ -16,7 +16,7 @@ class ChapterController extends Controller
                           ->with('manga')
                           ->published()
                           ->firstOrFail();
-        
+
         if (Auth::check()) {
             History::updateOrCreate(
                 [
@@ -29,6 +29,14 @@ class ChapterController extends Controller
                 ]
             );
         }
+
+        $comments = Comment::with(['user', 'replies.user', 'replies.parent'])
+            ->where('chapter_id', $chapter->id)
+            ->whereNull('parent_id')
+            ->latest()
+            ->get();
+        
+        $totalCommentsCount = Comment::where('chapter_id', $chapter->id)->count();
         
         $nextChapter = Chapter::where('manga_id', $chapter->manga_id)
                              ->where('number', '>', $chapter->number)
@@ -42,6 +50,12 @@ class ChapterController extends Controller
                              ->orderBy('number', 'desc')
                              ->first();
         
-        return view('chapter.show', compact('chapter', 'nextChapter', 'prevChapter'));
+        return view('chapter.show', [
+            'chapter' => $chapter,
+            'prevChapter' => $prevChapter,
+            'nextChapter' => $nextChapter,
+            'comments' => $comments,
+            'totalCommentsCount' => $totalCommentsCount
+        ]);
     }
 }
