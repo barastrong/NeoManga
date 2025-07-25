@@ -54,4 +54,5 @@ class Comment extends Model
 
         return in_array($this->id, $likedComments);
     }
+
 }

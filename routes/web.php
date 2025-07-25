@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MangaController;
 use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\DashboardController;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -25,6 +26,11 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
+    Route::delete('/history/{history}', [HistoryController::class, 'destroy'])->name('history.destroy');
+    Route::delete('/history', [HistoryController::class, 'clear'])->name('history.clear');
+    Route::post('/manga/{mangaId}/history/reset', [HistoryController::class, 'resetForManga'])->name('history.resetForManga');
+
 });
 
 require __DIR__.'/auth.php';

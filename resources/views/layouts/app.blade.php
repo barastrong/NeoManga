@@ -77,12 +77,9 @@
                             $activeClasses = 'bg-gray-100 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 after:w-1/2';
                             $inactiveClasses = 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:after:w-1/2';
                         @endphp
-                        <a href="{{ route('dashboard') }}"
-                        class="{{ $navLinkClasses }} {{ request()->is('/') ? $activeClasses : $inactiveClasses }}">
-                        Home
-                        </a>
+                        <a href="{{ route('dashboard') }}" class="{{ $navLinkClasses }} {{ request()->is('/') ? $activeClasses : $inactiveClasses }}">Home</a>
                         <a href="{{ url('/categories') }}" class="{{ $navLinkClasses }} {{ request()->is('categories*') ? $activeClasses : $inactiveClasses }}">Manga List</a>
-                        <a href="" class=" {{ $navLinkClasses }} ">History</a>
+                        <a href="{{ route('history.index') }}" class="{{ $navLinkClasses }} {{ request()->is('history*') ? $activeClasses : $inactiveClasses }}">History</a>
                         <a href="{{ route('bookmark.index') }}" class="{{ $navLinkClasses }} {{ request()->is('bookmarks*') ? $activeClasses : $inactiveClasses }}">Bookmark</a>
                     </div>
                     
@@ -152,7 +149,7 @@
                     @endphp
                     <a href="{{ route('dashboard') }}" class="{{ $mobileLinkClasses }} {{ request()->is('/') ? $mobileActiveClasses : $mobileInactiveClasses }}">Home</a>
                     <a href="{{ url('/categories') }}" class="{{ $mobileLinkClasses }} {{ request()->is('categories*') ? $mobileActiveClasses : $mobileInactiveClasses }}">Manga List</a>
-                    <a href="{{ route('bookmark.index') }}" class="{{ $mobileLinkClasses }} {{ request()->is('bookmarks*') ? $mobileActiveClasses : $mobileInactiveClasses }}">History</a>
+                    <a href="{{ route('history.index') }}" class="{{ $mobileLinkClasses }} {{ request()->is('history*') ? $mobileActiveClasses : $mobileInactiveClasses }}">History</a>
                     <a href="{{ route('bookmark.index') }}" class="{{ $mobileLinkClasses }} {{ request()->is('bookmarks*') ? $mobileActiveClasses : $mobileInactiveClasses }}">Bookmark</a>
                     
                     @guest

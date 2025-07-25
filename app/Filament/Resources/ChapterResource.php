@@ -60,7 +60,6 @@ class ChapterResource extends Resource
 
                         TextInput::make('number')
                             ->label('Chapter Number')
-                            ->numeric()
                             ->required()
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $set) {

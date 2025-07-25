@@ -14,6 +14,7 @@ class Manga extends Model
     protected $fillable = [
         'user_id',
         'title',
+        'alternative_title',
         'slug',
         'description',
         'author',
@@ -37,6 +38,11 @@ class Manga extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+       public function histories()
+    {
+        return $this->hasMany(History::class);
     }
 
     /**

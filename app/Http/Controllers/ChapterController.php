@@ -37,6 +37,8 @@ class ChapterController extends Controller
             ->get();
         
         $totalCommentsCount = Comment::where('chapter_id', $chapter->id)->count();
+
+         $allChapters = $chapter->manga->chapters()->latest()->get();
         
         $nextChapter = Chapter::where('manga_id', $chapter->manga_id)
                              ->where('number', '>', $chapter->number)
@@ -55,7 +57,8 @@ class ChapterController extends Controller
             'prevChapter' => $prevChapter,
             'nextChapter' => $nextChapter,
             'comments' => $comments,
-            'totalCommentsCount' => $totalCommentsCount
+            'totalCommentsCount' => $totalCommentsCount,
+            'allChapters' => $allChapters,
         ]);
     }
 }

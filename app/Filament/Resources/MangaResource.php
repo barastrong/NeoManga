@@ -24,6 +24,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Forms\Set;
 
 class MangaResource extends Resource
 {
@@ -49,9 +50,14 @@ class MangaResource extends Resource
                                     ->required()
                                     ->maxLength(255)
                                     ->live(onBlur: true)
-                                    ->afterStateUpdated(fn (string $context, $state, callable $set) => 
-                                        $context === 'create' ? $set('slug', Str::slug($state)) : null
-                                    ),
+                                    ->afterStateUpdated(function (Set $set, ?string $state) {
+                                        $set('slug', Str::slug($state));
+                                    }),
+
+                                TextInput::make('alternative_title')
+                                    ->label('Alternative Title')
+                                    ->required()
+                                    ->maxLength(255),
 
                                 TextInput::make('slug')
                                     ->required()

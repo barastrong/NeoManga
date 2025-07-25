@@ -13,7 +13,7 @@ class MangaController extends Controller
     public function show($slug)
     {
         $manga = Manga::where('slug', $slug)
-                      ->with(['genres', 'user', 'bookmarks', 'comments'])
+                      ->with(['genres', 'user', 'bookmarks', 'comments.user', 'comments.replies.user'])
                       ->firstOrFail();
         
         $chapters = Chapter::where('manga_id', $manga->id)
@@ -23,16 +23,27 @@ class MangaController extends Controller
         
         $isBookmarked = false;
         $readChapters = [];
-        
+        $userHistories = collect();
+
         if (Auth::check()) {
-            $isBookmarked = $manga->isBookmarkedBy(Auth::id());
+            $user = Auth::user();
+            $isBookmarked = $manga->isBookmarkedBy($user->id);
             
-            $readChapters = History::where('user_id', Auth::id())
+            $readChapters = History::where('user_id', $user->id)
                                   ->where('manga_id', $manga->id)
                                   ->pluck('chapter_id')
                                   ->toArray();
+
+            $userHistories = History::with('chapter')
+                ->where('user_id', $user->id)
+                ->where('manga_id', $manga->id)
+                ->where('updated_at', '>=', now()->subDays(5))
+                ->latest('updated_at')
+                ->take(10) 
+                ->get();
+            
         }
         
-        return view('manga.show', compact('manga', 'chapters', 'isBookmarked', 'readChapters'));
+        return view('manga.show', compact('manga', 'chapters', 'isBookmarked', 'readChapters', 'userHistories'));
     }
 }

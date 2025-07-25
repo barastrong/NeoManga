@@ -1,5 +1,33 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #c5c5c5;
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-track {
+        background: #2d3748;
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #4a5568;
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #718096;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="min-h-screen">
     <div class="container mx-auto px-4 py-8">
@@ -8,19 +36,19 @@
                 <div class="flex-shrink-0">
                     <img src="{{ $manga->cover_image ? asset('storage/' . $manga->cover_image) : asset('images/no-image.png') }}" alt="{{ $manga->title }}" class="w-48 h-64 object-cover rounded-lg shadow-lg">
                     @auth
-                        <button id="bookmarkBtn" data-manga-id="{{ $manga->id }}" class="w-full mt-4 font-bold py-2 px-4 rounded-lg transition duration-200 text-white {{ $isBookmarked ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700' }}">
+                        <button id="bookmarkBtn" data-manga-id="{{ $manga->id }}" class="w-full mt-4 font-bold py-2 px-4 rounded-lg transition duration-200 text-white {{ $isBookmarked ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700' }}">
                             <i class="fas fa-bookmark mr-2"></i>
                             <span id="bookmarkText">{{ $isBookmarked ? 'Remove Bookmark' : 'Add Bookmark' }}</span>
                         </button>
                     @else
-                        <button class="js-login-prompt w-full mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
+                        <button class="js-login-prompt w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
                             <i class="fas fa-bookmark mr-2"></i>
                             Add to Bookmark
                         </button>
                     @endauth
                     <div class="mt-4 text-center">
                         <div class="text-sm mb-2 text-gray-700 dark:text-gray-300">
-                            Followed by <span id="followersCount" class="font-semibold text-red-600">{{ $manga->followers_count }}</span> people
+                            Followed by <span id="followersCount" class="font-semibold text-blue-600">{{ $manga->followers_count }}</span> people
                         </div>
                         <div class="flex justify-center space-x-1">
                             @for($i = 1; $i <= 5; $i++)
@@ -30,7 +58,8 @@
                     </div>
                 </div>
                 <div class="flex-1">
-                    <h1 class="text-3xl font-bold mb-4 text-gray-800 dark:text-white">{{ $manga->title }}</h1>
+                    <h1 class="text-3xl font-bold mb-2 text-gray-800 dark:text-white">{{ $manga->title }}</h1>
+                    <h2 class="text-lg text-gray-600 dark:text-gray-400 mb-4 italic">{{ $manga->alternative_title }}</h2>
                     <p class="mb-6 leading-relaxed text-gray-700 dark:text-gray-300">
                         {{ $manga->description }}
                     </p>
@@ -53,7 +82,7 @@
                     <div class="mt-6">
                         <div class="flex flex-wrap gap-2">
                             @foreach($manga->genres as $genre)
-                                <span class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-full text-sm text-white transition-colors duration-200">{{ $genre->name }}</span>
+                                <span class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-full text-sm text-white transition-colors duration-200">{{ $genre->name }}</span>
                             @endforeach
                         </div>
                     </div>
@@ -61,25 +90,55 @@
             </div>
         </div>
 
+        @auth
+            @if($userHistories->isNotEmpty())
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 mb-8 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-800 dark:text-white">Latest reading</h2>
+                    <form action="{{ route('history.resetForManga', $manga->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to reset the reading history for this manga?');">
+                        @csrf
+                        <button type="submit" class="bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold py-1 px-3 rounded-md transition-colors duration-200">
+                            Reset history
+                        </button>
+                    </form>
+                </div>
+                <div class="max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                    <div class="space-y-3">
+                        @foreach($userHistories as $history)
+                        <div class="flex justify-between items-center border border-gray-300 p-3 rounded-lg">
+                            <a href="{{ route('chapter.show', $history->chapter->slug) }}" class="font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-500 transition-colors">
+                                Chapter {{ $history->chapter->number }}
+                            </a>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">{{ $history->updated_at->format('d M Y, H:i') }}</span>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
+        @endauth
+
         <div class="bg-white dark:bg-gray-800 rounded-lg p-6 mb-8 shadow-lg border border-gray-200 dark:border-gray-700">
             <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Chapter {{ $manga->title }}</h2>
             @if($chapters->count() > 0)
-                <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                    @foreach($chapters as $chapter)
-                        @if($chapter->status == 'published' || $chapter->status == 'fixed')
-                            <div class="bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 rounded p-3 transition duration-200 border border-gray-200 dark:border-gray-600">
-                                <a href="{{ route('chapter.show', $chapter->slug) }}" class="block hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                                    <div class="flex items-center justify-between">
-                                        <div class="text-base font-medium text-gray-800 dark:text-gray-200 {{ in_array($chapter->id, $readChapters) ? 'text-red-600 dark:text-red-600' : '' }}">Chapter {{ $chapter->number }}</div>
-                                        @if($chapter->status == 'fixed')
-                                            <span class="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-1 rounded">Fixed</span>
-                                        @endif
-                                    </div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $chapter->created_at->format('d M Y') }}</div>
-                                </a>
-                            </div>
-                        @endif
-                    @endforeach
+                <div class="max-h-[450px] overflow-y-auto pr-2 custom-scrollbar">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+                        @foreach($chapters->sortByDesc('number') as $chapter)
+                            @if($chapter->status == 'published' || $chapter->status == 'fixed')
+                                <div class="bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg p-2.5 transition duration-200 border border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500">
+                                    <a href="{{ route('chapter.show', $chapter->slug) }}" class="block hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <div class="text-sm font-medium {{ in_array($chapter->id, $readChapters) ? 'text-blue-600 dark:text-blue-600' : 'text-gray-800 dark:text-gray-200' }}">Ch. {{ $chapter->number }}</div>
+                                            @if($chapter->status == 'fixed')
+                                                <span class="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-1.5 py-0.5 rounded-md">Fixed</span>
+                                            @endif
+                                        </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ $chapter->created_at->format('d M Y') }}</div>
+                                    </a>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
                 </div>
             @else
                 <div class="text-center py-12">
@@ -139,7 +198,7 @@
                                     <span class="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0 ml-4">{{ $comment->created_at->diffForHumans() }}</span>
                                 </div>
                                 <div class="mt-2 flex justify-between items-end">
-                                    <div class="flex-grow">
+                                    <div class="flex-grow text-base text-gray-800 dark:text-gray-200">
                                         @include('partials.comment-content', ['comment' => $comment])
                                     </div>
                                     @if (auth()->check() && auth()->user()->isAdmin())
@@ -182,18 +241,18 @@
                                             <div class="flex items-center justify-between">
                                                 <div class="flex items-center space-x-2">
                                                     @if ($reply->user->isAdmin())
-                                                        <span class="font-semibold text-red-500 dark:text-red-400 text-sm">{{ $reply->user->name }}</span>
+                                                        <span class="font-semibold text-red-500 dark:text-red-400">{{ $reply->user->name }}</span>
                                                         <span class="bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
                                                             <i class="fas fa-shield-alt fa-fw mr-1"></i>NeoAdmin
                                                         </span>
                                                     @else
-                                                        <span class="font-semibold text-gray-800 dark:text-white text-sm">{{ $reply->user->name }}</span>
+                                                        <span class="font-semibold text-gray-800 dark:text-white">{{ $reply->user->name }}</span>
                                                     @endif
                                                 </div>
                                                 <span class="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0 ml-2">{{ $reply->created_at->diffForHumans() }}</span>
                                             </div>
-                                            <div class="mt-2 flex justify-between items-end text-sm">
-                                                <div class="flex-grow">
+                                            <div class="mt-2 flex justify-between items-end">
+                                                <div class="flex-grow text-base text-gray-800 dark:text-gray-200">
                                                     @include('partials.comment-content', ['comment' => $reply])
                                                 </div>
                                                 @if (auth()->check() && auth()->user()->isAdmin())
@@ -321,7 +380,7 @@
                             this.className = 'w-full mt-4 font-bold py-2 px-4 rounded-lg transition duration-200 text-white bg-green-600 hover:bg-green-700';
                             bookmarkText.textContent = 'Remove Bookmark';
                         } else {
-                            this.className = 'w-full mt-4 font-bold py-2 px-4 rounded-lg transition duration-200 text-white bg-red-600 hover:bg-red-700';
+                            this.className = 'w-full mt-4 font-bold py-2 px-4 rounded-lg transition duration-200 text-white bg-blue-600 hover:bg-blue-700';
                             bookmarkText.textContent = 'Add Bookmark';
                         }
                         followersCount.textContent = data.followers_count;
