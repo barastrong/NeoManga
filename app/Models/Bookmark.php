@@ -15,19 +15,18 @@ class Bookmark extends Model
         'bookmark',
     ];
 
-    /**
-     * Relasi: Bookmark milik satu User
-     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Relasi: Bookmark milik satu Manga
-     */
     public function manga()
     {
         return $this->belongsTo(Manga::class);
+    }
+
+    public function chapter()
+    {
+        return $this->belongsTo(Chapter::class);
     }
 }

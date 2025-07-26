@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', $manga->title)
+
 @push('styles')
 <style>
     .custom-scrollbar::-webkit-scrollbar {

@@ -4,16 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <title>@yield('title', config('app.name', 'NeoManga'))</title>
-
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
     <script src="https://cdn.tailwindcss.com"></script>
-
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style type="text/tailwindcss">
@@ -60,106 +56,168 @@
 </head>
 
 <body class="font-sans antialiased bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-    <div id="app" class="min-h-screen flex flex-col">
-        
-        <nav x-data="{ mobileMenuOpen: false }" id="navbar" class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg shadow-sm border-b border-gray-200 dark:border-gray-700/50 sticky top-0 z-50 transition-all duration-300">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
-                    
-                    <a href="{{ route('dashboard') }}" class="flex-shrink-0 flex items-center space-x-2">
-                        <i class="fa-solid fa-book-journal-whills text-indigo-600 dark:text-indigo-400 text-2xl"></i>
-                        <span class="text-2xl font-bold text-gray-800 dark:text-white">NeoManga</span>
-                    </a>
-                    
-                    <div class="hidden lg:flex items-center space-x-1">
-                        @php
-                            $navLinkClasses = "relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 after:content-[''] after:absolute after:w-0 after:h-0.5 after:bottom-1.5 after:left-1/2 after:-translate-x-1/2 after:bg-indigo-500 after:transition-all after:duration-300";
-                            $activeClasses = 'bg-gray-100 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 after:w-1/2';
-                            $inactiveClasses = 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:after:w-1/2';
-                        @endphp
-                        <a href="{{ route('dashboard') }}" class="{{ $navLinkClasses }} {{ request()->is('/') ? $activeClasses : $inactiveClasses }}">Home</a>
-                        <a href="{{ url('/categories') }}" class="{{ $navLinkClasses }} {{ request()->is('categories*') ? $activeClasses : $inactiveClasses }}">Manga List</a>
-                        <a href="{{ route('history.index') }}" class="{{ $navLinkClasses }} {{ request()->is('history*') ? $activeClasses : $inactiveClasses }}">History</a>
-                        <a href="{{ route('bookmark.index') }}" class="{{ $navLinkClasses }} {{ request()->is('bookmarks*') ? $activeClasses : $inactiveClasses }}">Bookmark</a>
-                    </div>
-                    
-                    <div class="flex items-center space-x-2 sm:space-x-4">
-                        
-                        <div class="hidden md:block">
-                            <div class="relative">
-                                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                <input type="search" placeholder="Cari manga..." class="search-input w-36 lg:w-56 bg-gray-100 dark:bg-gray-700/50 text-sm pl-10 pr-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300">
-                            </div>
+    <div 
+        x-data="{ 
+            mobileMenuOpen: false, 
+            mobileSearchOpen: false
+        }" 
+        x-init="$watch('mobileMenuOpen', value => { 
+            document.body.style.overflow = value ? 'hidden' : 'auto'; 
+        })"
+        id="app" 
+        class="min-h-screen flex flex-col"
+    >
+        <header id="page-header" class="sticky top-0 z-40 w-full transition-transform duration-300">
+            <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg shadow-sm border-b border-gray-200 dark:border-gray-700/50">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between items-center h-16">
+                        <div class="flex items-center space-x-2">
+                            <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden btn-icon -ml-2">
+                                <i class="fa-solid fa-bars text-xl"></i>
+                            </button>
+                            <a href="{{ route('dashboard') }}" class="flex-shrink-0 flex items-center space-x-2">
+                                <i class="fa-solid fa-book-journal-whills text-indigo-600 dark:text-indigo-400 text-2xl"></i>
+                                <span class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">NeoManga</span>
+                            </a>
                         </div>
                         
-                        <button id="themeToggle" aria-label="Toggle Theme" class="btn-icon">
-                            <i class="fa-solid fa-sun text-lg hidden dark:block"></i>
-                            <i class="fa-solid fa-moon text-lg dark:hidden"></i>
-                        </button>
-
-                        @auth
-                            @if(Auth::check() && (Auth::user()->role === 'admin' || Auth::user()->is_admin))
-                                <a href="{{ url('/admin') }}" aria-label="Admin Panel" class="btn-icon bg-red-600 text-white hover:bg-red-700">
-                                    <i class="fa-solid fa-user-shield"></i>
-                                </a>
-                            @endif
-                            
-                            <div class="relative" x-data="{ dropdownOpen: false }" @click.outside="dropdownOpen = false">
-                                <button @click="dropdownOpen = !dropdownOpen" class="transition-transform duration-200 hover:scale-105">
-                                    <img class="w-10 h-10 rounded-full object-cover ring-2 ring-offset-2 ring-offset-gray-100 dark:ring-offset-gray-900 ring-indigo-500" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=random&color=fff" alt="Avatar">
-                                </button>
-                                
-                                <div x-show="dropdownOpen" x-transition class="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 origin-top-right z-50" style="display: none;">
-                                    <div class="py-1">
-                                        <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                                            <p class="font-semibold truncate">{{ auth()->user()->name }}</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ auth()->user()->email }}</p>
-                                        </div>
-                                        <a href="" class="dropdown-item"><i class="fa-regular fa-user w-5"></i> Profile</a>
-                                        <a href="" class="dropdown-item"><i class="fa-solid fa-gear w-5"></i> Settings</a>
-                                        <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
-                                        <form method="POST" action="{{ route('logout') }}">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item text-red-600 dark:text-red-500 w-full text-left">
-                                                <i class="fa-solid fa-right-from-bracket w-5"></i> Logout
-                                            </button>
-                                        </form>
-                                    </div>
+                        <div class="hidden lg:flex items-center space-x-1">
+                            @php
+                                $navLinkClasses = "relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 after:content-[''] after:absolute after:w-0 after:h-0.5 after:bottom-1.5 after:left-1/2 after:-translate-x-1/2 after:bg-indigo-500 after:transition-all after:duration-300";
+                                $activeClasses = 'bg-gray-100 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 after:w-1/2';
+                                $inactiveClasses = 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:after:w-1/2';
+                            @endphp
+                            <a href="{{ route('dashboard') }}" class="{{ $navLinkClasses }} {{ request()->is('/') ? $activeClasses : $inactiveClasses }}">Home</a>
+                            <a href="{{ route('manga.list') }}" class="{{ $navLinkClasses }} {{ request()->is('manga*') ? $activeClasses : $inactiveClasses }}">Manga List</a>
+                            <a href="{{ route('history.index') }}" class="{{ $navLinkClasses }} {{ request()->is('history*') ? $activeClasses : $inactiveClasses }}">History</a>
+                            <a href="{{ route('bookmark.index') }}" class="{{ $navLinkClasses }} {{ request()->is('bookmarks*') ? $activeClasses : $inactiveClasses }}">Bookmark</a>
+                        </div>
+                        
+                        <div class="flex items-center space-x-2 sm:space-x-3">
+                            <div class="hidden sm:block">
+                                <div class="relative">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                    <input type="search" placeholder="Cari manga..." class="search-input w-36 lg:w-56 bg-gray-100 dark:bg-gray-700/50 text-sm pl-10 pr-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300">
                                 </div>
                             </div>
-                        @else
-                            <div class="hidden md:flex items-center space-x-2">
-                                <a href="{{ route('login') }}" class="btn-primary">Login</a>
-                            </div>
-                        @endguest
-                        
-                        <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden btn-icon">
-                            <i class="fa-solid fa-bars text-xl"></i>
-                        </button>
+
+                            <button @click="mobileSearchOpen = !mobileSearchOpen" class="sm:hidden btn-icon">
+                                <i class="fa-solid fa-magnifying-glass text-lg"></i>
+                            </button>
+                            
+                            <button id="themeToggle" aria-label="Toggle Theme" class="btn-icon">
+                                <i class="fa-solid fa-sun text-lg hidden dark:block"></i>
+                                <i class="fa-solid fa-moon text-lg dark:hidden"></i>
+                            </button>
+
+                            @auth
+                                @if(Auth::check() && (Auth::user()->role === 'admin' || Auth::user()->is_admin))
+                                    <a href="{{ url('/admin') }}" aria-label="Admin Panel" class="btn-icon bg-red-600 text-white hover:bg-red-700">
+                                        <i class="fa-solid fa-user-shield"></i>
+                                    </a>
+                                @endif
+                                
+                                <div class="relative" x-data="{ dropdownOpen: false }" @click.outside="dropdownOpen = false">
+                                    <button @click="dropdownOpen = !dropdownOpen" class="transition-transform duration-200 hover:scale-105">
+                                        <img class="w-10 h-10 rounded-full object-cover ring-2 ring-offset-2 ring-offset-gray-100 dark:ring-offset-gray-900 ring-indigo-500" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=random&color=fff" alt="Avatar">
+                                    </button>
+                                    
+                                    <div x-show="dropdownOpen" x-transition class="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 origin-top-right" style="display: none;">
+                                        <div class="py-1">
+                                            <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                                                <p class="font-semibold truncate">{{ auth()->user()->name }}</p>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ auth()->user()->email }}</p>
+                                            </div>
+                                            <a href="#" class="dropdown-item"><i class="fa-regular fa-user w-5"></i> Profile</a>
+                                            <a href="#" class="dropdown-item"><i class="fa-solid fa-gear w-5"></i> Settings</a>
+                                            <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                                            <form method="POST" action="{{ route('logout') }}">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item text-red-600 dark:text-red-500 w-full text-left">
+                                                    <i class="fa-solid fa-right-from-bracket w-5"></i> Logout
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="hidden lg:flex items-center space-x-2">
+                                    <a href="{{ route('login') }}" class="btn-primary">Login</a>
+                                </div>
+                            @endguest
+                        </div>
+                    </div>
+                </div>
+
+                <div x-show="mobileSearchOpen" x-transition class="sm:hidden border-t border-gray-200 dark:border-gray-700/50" style="display: none;">
+                     <div class="relative p-4">
+                        <i class="fa-solid fa-magnifying-glass absolute left-7 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="search" placeholder="Cari manga..." class="search-input w-full bg-gray-100 dark:bg-gray-700/50 text-sm pl-10 pr-4 py-2.5 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                 </div>
             </div>
-            
-            <div x-show="mobileMenuOpen" x-transition class="lg:hidden border-t border-gray-200 dark:border-gray-700" style="display: none;">
-                <div class="p-4 space-y-2">
+        </header>
+
+        <div x-show="mobileMenuOpen" class="lg:hidden fixed inset-0 z-50" style="display: none;">
+            <div 
+                @click="mobileMenuOpen = false"
+                x-show="mobileMenuOpen" 
+                x-transition:enter="transition-opacity ease-in-out duration-300"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition-opacity ease-in-out duration-300"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            ></div>
+
+            <div 
+                x-show="mobileMenuOpen"
+                x-transition:enter="transition ease-in-out duration-300 transform"
+                x-transition:enter-start="-translate-x-full"
+                x-transition:enter-end="translate-x-0"
+                x-transition:leave="transition ease-in-out duration-300 transform"
+                x-transition:leave-start="translate-x-0"
+                x-transition:leave-end="-translate-x-full"
+                class="relative w-72 max-w-[80vw] h-full bg-white dark:bg-gray-800 shadow-xl flex flex-col"
+            >
+                <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                    <a href="{{ route('dashboard') }}" class="flex-shrink-0 flex items-center space-x-2">
+                        <i class="fa-solid fa-book-journal-whills text-indigo-600 dark:text-indigo-400 text-xl"></i>
+                        <span class="text-xl font-bold text-gray-800 dark:text-white">NeoManga</span>
+                    </a>
+                    <button @click="mobileMenuOpen = false" class="btn-icon">
+                        <i class="fa-solid fa-xmark text-2xl"></i>
+                    </button>
+                </div>
+
+                <nav class="flex-grow p-4 space-y-2">
                     @php
                         $mobileLinkClasses = "flex items-center w-full px-4 py-3 text-base font-medium rounded-lg transition-colors";
                         $mobileActiveClasses = 'bg-indigo-50 dark:bg-gray-700/50 text-indigo-700 dark:text-indigo-400';
-                        $mobileInactiveClasses = 'text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700';
+                        $mobileInactiveClasses = 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50';
                     @endphp
-                    <a href="{{ route('dashboard') }}" class="{{ $mobileLinkClasses }} {{ request()->is('/') ? $mobileActiveClasses : $mobileInactiveClasses }}">Home</a>
-                    <a href="{{ url('/categories') }}" class="{{ $mobileLinkClasses }} {{ request()->is('categories*') ? $mobileActiveClasses : $mobileInactiveClasses }}">Manga List</a>
-                    <a href="{{ route('history.index') }}" class="{{ $mobileLinkClasses }} {{ request()->is('history*') ? $mobileActiveClasses : $mobileInactiveClasses }}">History</a>
-                    <a href="{{ route('bookmark.index') }}" class="{{ $mobileLinkClasses }} {{ request()->is('bookmarks*') ? $mobileActiveClasses : $mobileInactiveClasses }}">Bookmark</a>
-                    
-                    @guest
-                        <div class="border-t border-gray-200 dark:border-gray-700 pt-4 flex items-center space-x-3">
-                            <a href="{{ route('login') }}" class="flex-1 btn-primary text-center">Login</a>
-                        </div>
-                    @endguest
-                </div>
+                    <a href="{{ route('dashboard') }}" class="{{ $mobileLinkClasses }} {{ request()->is('/') ? $mobileActiveClasses : $mobileInactiveClasses }}">
+                        <i class="fa-solid fa-house w-6 mr-3"></i><span>Home</span>
+                    </a>
+                    <a href="{{ route('manga.list') }}" class="{{ $mobileLinkClasses }} {{ request()->is('manga*') ? $mobileActiveClasses : $mobileInactiveClasses }}">
+                        <i class="fa-solid fa-book w-6 mr-3"></i><span>Manga List</span>
+                    </a>
+                    <a href="{{ route('history.index') }}" class="{{ $mobileLinkClasses }} {{ request()->is('history*') ? $mobileActiveClasses : $mobileInactiveClasses }}">
+                        <i class="fa-solid fa-clock-rotate-left w-6 mr-3"></i><span>History</span>
+                    </a>
+                    <a href="{{ route('bookmark.index') }}" class="{{ $mobileLinkClasses }} {{ request()->is('bookmarks*') ? $mobileActiveClasses : $mobileInactiveClasses }}">
+                        <i class="fa-solid fa-bookmark w-6 mr-3"></i><span>Bookmark</span>
+                    </a>
+                </nav>
+
+                @guest
+                    <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                        <a href="{{ route('login') }}" class="flex-1 btn-primary text-center w-full block">Login</a>
+                    </div>
+                @endguest
             </div>
-        </nav>
+        </div>
 
         <main class="flex-grow">
             @yield('content')
@@ -239,7 +297,7 @@
             if (savedTheme) {
                 applyTheme(savedTheme);
             } else {
-                applyTheme(systemPrefersDark ? 'dark' : 'light');
+                applyTheme(systemPrefersDark ? 'light' : 'dark');
             }
 
             if (themeToggle) {
@@ -260,14 +318,14 @@
             });
 
             let lastScrollTop = 0;
-            const navbar = document.getElementById('navbar');
-            if (navbar) {
+            const header = document.getElementById('page-header');
+            if (header) {
                 window.addEventListener('scroll', () => {
                     let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                    if (scrollTop > lastScrollTop && scrollTop > navbar.offsetHeight) {
-                        navbar.style.transform = 'translateY(-100%)';
+                    if (scrollTop > lastScrollTop && scrollTop > header.offsetHeight) {
+                        header.style.transform = 'translateY(-100%)';
                     } else {
-                        navbar.style.transform = 'translateY(0)';
+                        header.style.transform = 'translateY(0)';
                     }
                     lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
                 }, { passive: true });

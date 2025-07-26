@@ -32,9 +32,6 @@ class Manga extends Model
         return $this->belongsToMany(Genre::class, 'manga_genres');
     }
 
-    /**
-     * Relasi: Manga dibuat oleh satu User
-     */
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -86,7 +83,6 @@ class Manga extends Model
         
         return $this->bookmarks()->where('user_id', $userId)->exists();
     }
-    // Di dalam User.php (default Laravel model)
 
 public function comments()
 {

@@ -7,9 +7,51 @@ use App\Models\Manga;
 use App\Models\Chapter;
 use App\Models\History;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Genre;
 
 class MangaController extends Controller
 {
+    public function mangaList(Request $request)
+    {
+        $query = Manga::query();
+
+        if ($request->filled('genre') && is_array($request->genre)) {
+            $query->whereHas('genres', function ($q) use ($request) {
+                $q->whereIn('genres.id', $request->genre);
+            });
+        }
+
+        if ($request->filled('status') && $request->status != 'all') {
+            $query->where('status', $request->status);
+        }
+        
+        if ($request->filled('type') && $request->type != 'all') {
+            $query->where('type', $request->type);
+        }
+
+        $order = $request->input('order', 'latest');
+        switch ($order) {
+            case 'popularity':
+                $query->withCount('bookmarks')->orderBy('bookmarks_count', 'desc');
+                break;
+            case 'rating':
+                $query->withAvg('ratings', 'rating')->orderBy('ratings_avg_rating', 'desc');
+                break;
+            default:
+                $query->latest('updated_at');
+                break;
+        }
+
+        $mangas = $query->with('latestPublishedChapter')
+                        ->withAvg('ratings', 'rating')
+                        ->paginate(30) // Lebih banyak item per halaman
+                        ->withQueryString();
+
+        $genres = Genre::orderBy('name')->get();
+
+        return view('manga.list', compact('mangas', 'genres'));
+    }
+
     public function show($slug)
     {
         $manga = Manga::where('slug', $slug)
