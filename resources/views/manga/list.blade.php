@@ -1,11 +1,12 @@
 @extends('layouts.app')
 
+@section('title', 'Manga List - NeoManga')
+
 @section('content')
 <div class="container mx-auto px-4 py-8 md:px-6 md:py-10">
     <form method="GET" action="{{ route('manga.list') }}" id="filterForm">
         <div class="p-4 mb-8 rounded-lg shadow-sm bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {{-- Tombol Genre --}}
                 <div>
                     <label for="genreBtn" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Genre</label>
                     <button 
@@ -28,7 +29,6 @@
                     </button>
                 </div>
 
-                {{-- Filter Lainnya (Status, Type, Order) --}}
                 <div>
                     <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
                     <select onchange="this.form.submit()" id="status" name="status" class="w-full h-10 px-3 py-2 text-base border rounded-md shadow-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-gray-100">
@@ -57,7 +57,6 @@
             </div>
         </div>
         
-        {{-- Modal Genre --}}
         <div id="genreModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 hidden">
             <div id="genreModalContent" class="w-full max-w-2xl mx-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl flex flex-col">
                 <div class="p-5 border-b border-gray-200 dark:border-gray-700">
@@ -95,7 +94,6 @@
         </div>
     </form>
     
-    {{-- Tampilan Manga --}}
     @if($mangas->count() > 0)
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-5 gap-y-8">
             @foreach($mangas as $manga)
@@ -169,7 +167,6 @@
         const genreCheckboxes = document.querySelectorAll('.genre-checkbox');
         const genreButtonText = document.getElementById('genreButtonText');
 
-        // Get initial selected genres from URL
         const urlParams = new URLSearchParams(window.location.search);
         const initialSelectedGenres = urlParams.getAll('genre[]').concat(urlParams.getAll('genre')).map(id => parseInt(id));
 
@@ -241,12 +238,10 @@
                 }
             });
             
-            // Initialize styles and button text
             updateCheckboxStyles();
             updateButtonText();
         }
 
-        // Handle escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && !genreModal.classList.contains('hidden')) {
                 resetGenresToInitialState();

@@ -12,11 +12,14 @@ use Illuminate\Support\Str;
 
 class ChapterImportController extends Controller
 {
+    /**
+     * Menyimpan chapter baru yang diimpor dari bot.
+     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'manga_slug' => 'required|string|max:255',
-            'chapter_number' => 'required|string|max:50', // Tetap string untuk menampung angka seperti '10.5'
+            'chapter_number' => 'required|string|max:50',
             'images' => 'required|array',
             'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
         ]);
@@ -26,25 +29,20 @@ class ChapterImportController extends Controller
         }
 
         try {
-            // Mencari manga berdasarkan slug (ini sudah benar)
             $manga = Manga::where('slug', $request->manga_slug)->first();
 
             if (!$manga) {
-                // Logika manga tidak ditemukan (ini sudah benar)
-                $this->logMissingManga($request->manga_slug);
+                // Sesuai logika, bot tidak akan mengirim chapter jika manga tidak ada.
+                // Tapi sebagai pengaman, kita tetap berikan respons 404.
                 return response()->json(['message' => 'Manga not found'], 404);
             }
 
-            // Cek chapter duplikat (ini sudah benar)
             if (Chapter::where('manga_id', $manga->id)->where('number', $request->chapter_number)->exists()) {
-                return response()->json(['message' => 'Chapter already exists.'], 200);
+                return response()->json(['message' => 'Chapter ' . $request->chapter_number . ' already exists.'], 200);
             }
 
-            // Simpan gambar-gambar chapter
             $imagePaths = [];
             foreach ($request->file('images') as $image) {
-                // === PERBAIKAN NAMA FOLDER ===
-                // Path: chapters/manga-slug/nomor-chapter-bersih/image.jpg
                 $path = $image->store(
                     'chapters/' . $manga->slug . '/' . $request->chapter_number,
                     'public'
@@ -52,16 +50,11 @@ class ChapterImportController extends Controller
                 $imagePaths[] = $path;
             }
 
-            // Buat entri chapter baru di database
             Chapter::create([
-                'manga_id' => $manga->id, // manga_id ini sekarang pasti benar
-                'number' => $request->chapter_number, // Nomor chapter bersih
-                
-                'slug' => Str::random(10),
-                
+                'manga_id' => $manga->id,
+                'number' => $request->chapter_number,
+                'slug' => Str::random(10), // Slug unik untuk setiap chapter
                 'chapter_images' => $imagePaths,
-                
-                // === PERBAIKAN STATUS ===
                 'status' => 'published',
             ]);
             
@@ -70,10 +63,39 @@ class ChapterImportController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
+            // Log error untuk debugging
+            // \Log::error('Chapter Import Failed: ' . $e->getMessage());
             return response()->json(['message' => 'An server error occurred.', 'error' => $e->getMessage()], 500);
         }
     }
 
-    // Fungsi logMissingManga tetap sama
-    private function logMissingManga($slug) { /* ... */ }
+    /**
+     * Mengecek keberadaan manga dan mengembalikan nomor chapter terakhir yang dimiliki.
+     * Logika ini penting untuk bot Python.
+     *
+     * @param string $slug
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkMangaExists($slug)
+    {
+        $manga = Manga::where('slug', $slug)->with('chapters')->first();
+
+        if (!$manga) {
+            return response()->json([
+                'exists' => false,
+                'latest_chapter' => null
+            ]);
+        }
+        
+        // Sesuaikan dengan struktur tabel Anda:
+        // Gunakan 'status' dan 'published' sesuai method store()
+        $latestChapterNumber = $manga->chapters()
+                                     ->where('status', 'published') 
+                                     ->max('number');
+
+        return response()->json([
+            'exists' => true,
+            'latest_chapter' => $latestChapterNumber
+        ]);
+    }
 }

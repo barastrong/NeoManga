@@ -146,9 +146,9 @@ class MangaResource extends Resource
                             ->imageCropAspectRatio('3:4')
                             ->imageResizeTargetWidth('600')
                             ->imageResizeTargetHeight('800')
-                            ->maxSize(2048)
+                            ->maxSize(32768)
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                            ->helperText('Upload cover image (max 2MB, recommended 600x800px)')
+                            ->helperText('Upload cover image (max 32mb, recommended 600x800px)')
                             ->columnSpanFull()
                             ->preserveFilenames()
                             ->moveFiles(),

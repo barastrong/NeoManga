@@ -17,7 +17,7 @@
     $processedContent = preg_replace_callback(
         '/(?<!\w)@(\w+)/',
         function ($matches) {
-            $name = $matches[1]; // Ambil nama tanpa @
+            $name = $matches[1];
 
             $user = \App\Models\User::where('name', $name)->where('role', '!=', 'admin')->first();
 
@@ -27,7 +27,7 @@
 
             return $matches[0];
         },
-        $processedContent // Proses konten yang mungkin sudah berisi link admin
+        $processedContent
     );
 
 @endphp

@@ -6,8 +6,8 @@ use App\Http\Controllers\Api\ChapterImportController;
 
 Route::post('/import-chapter', [ChapterImportController::class, 'store'])
      ->middleware('auth.apikey');
+Route::get('/manga/check/{slug}', [ChapterImportController::class, 'checkMangaExists'])->middleware('auth.apikey');
 
-     
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');

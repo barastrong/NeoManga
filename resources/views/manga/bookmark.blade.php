@@ -14,10 +14,8 @@
     @endif
 
     @if($bookmarks->isNotEmpty())
-        {{-- Grid disesuaikan dengan jumlah paginate di controller --}}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-5 gap-y-8">
             @foreach($bookmarks as $bookmark)
-                {{-- Pastikan relasi manga tidak null sebelum dirender --}}
                 @if($bookmark->manga)
                     <div>
                         <div class="relative group"> {{-- Pindahkan 'group' ke parent agar hover bisa diakses tombol hapus --}}
@@ -62,11 +60,9 @@
                             </a>
                             
                             @if($bookmark->manga->latestPublishedChapter)
-                                {{-- Link menuju chapter yang terakhir dibaca --}}
                                 <a href="{{ route('chapter.show', $bookmark->manga->latestPublishedChapter  ->slug ) }}" class="block text-sm mt-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                                     <div class="flex justify-between items-center border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1">
                                         <span>Chapter {{ $bookmark->manga->latestPublishedChapter->number }}</span>
-                                        {{-- Waktu terakhir dibaca, menggunakan updated_at --}}
                                         <span class="text-xs text-gray-500">{{ $bookmark->updated_at->diffForHumans(['short' => true, 'parts' => 1]) }}</span>
                                     </div>
                                 </a>
@@ -74,7 +70,6 @@
                                 <p class="mt-2 text-sm italic text-gray-500 dark:text-gray-400">Belum pernah dibaca</p>
                             @endif
 
-                            {{-- Rating stars tidak perlu ada di halaman riwayat, tapi jika ingin dipertahankan tidak masalah --}}
                             <div class="flex items-center mt-2">
                                 @php $rounded_rating = round($bookmark->manga->ratings_avg_rating * 2) / 2; @endphp
                                 @for ($i = 1; $i <= 5; $i++)
@@ -88,7 +83,6 @@
         </div>
 
         <div class="mt-10">
-            {{-- PERBAIKAN 3: Gunakan variabel koleksi '$bookmarks' untuk pagination, bukan '$bookmark' --}}
             {{ $bookmarks->links() }}
         </div>
     @else
@@ -113,5 +107,4 @@
     </div>
 </div>
 @endguest
-
 @endsection
