@@ -6,13 +6,13 @@ Saya akan membuatkan draf lengkap untuk file `README.md` proyek **NeoManga** And
 
 # NeoManga - A Modern Web Reader for Manga & Comics
 
-![NeoManga Showcase](https://user-images.githubusercontent.com/12345/your-banner-image-url.png) <!-- Ganti URL ini dengan screenshot banner proyek Anda -->
+![NeoManga Showcase]() <!-- Ganti URL ini dengan screenshot banner proyek Anda -->
 
 <p align="center">
   <img src="https://img.shields.io/badge/Laravel-10.x-FF2D20?style=for-the-badge&logo=laravel" alt="Laravel">
   <img src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php" alt="PHP">
   <img src="https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind CSS">
-  <img src="https://img.shields.io/github/license/your-username/neomanga?style=for-the-badge" alt="License"> <!-- Ganti 'your-username' -->
+  <img src="https://img.shields.io/github/license/barastrong/neomanga?style=for-the-badge" alt="License"> <!-- Ganti 'your-username' -->
 </p>
 
 **NeoManga** adalah sebuah aplikasi web yang elegan dan modern, dibangun dengan Laravel, yang dirancang untuk memberikan pengalaman membaca manga, manhwa, manhua, dan webtoon yang lancar dan menyenangkan. Dengan antarmuka yang bersih, desain responsif, dan fitur-fitur yang berpusat pada pengguna, NeoManga bertujuan untuk menjadi platform pilihan bagi para penggemar komik.
@@ -64,7 +64,7 @@ Ikuti langkah-langkah berikut untuk menjalankan NeoManga di lingkungan lokal And
 
 1.  **Clone repositori:**
     ```bash
-    git clone https://github.com/your-username/neomanga.git
+    git clone https://github.com/barastrong/neomanga.git
     cd neomanga
     ```
 
