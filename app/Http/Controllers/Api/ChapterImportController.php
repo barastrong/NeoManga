@@ -12,9 +12,6 @@ use Illuminate\Support\Str;
 
 class ChapterImportController extends Controller
 {
-    /**
-     * Menyimpan chapter baru yang diimpor dari bot.
-     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -32,8 +29,6 @@ class ChapterImportController extends Controller
             $manga = Manga::where('slug', $request->manga_slug)->first();
 
             if (!$manga) {
-                // Sesuai logika, bot tidak akan mengirim chapter jika manga tidak ada.
-                // Tapi sebagai pengaman, kita tetap berikan respons 404.
                 return response()->json(['message' => 'Manga not found'], 404);
             }
 
@@ -63,15 +58,11 @@ class ChapterImportController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
-            // Log error untuk debugging
-            // \Log::error('Chapter Import Failed: ' . $e->getMessage());
             return response()->json(['message' => 'An server error occurred.', 'error' => $e->getMessage()], 500);
         }
     }
 
     /**
-     * Mengecek keberadaan manga dan mengembalikan nomor chapter terakhir yang dimiliki.
-     * Logika ini penting untuk bot Python.
      *
      * @param string $slug
      * @return \Illuminate\Http\JsonResponse
@@ -87,8 +78,6 @@ class ChapterImportController extends Controller
             ]);
         }
         
-        // Sesuaikan dengan struktur tabel Anda:
-        // Gunakan 'status' dan 'published' sesuai method store()
         $latestChapterNumber = $manga->chapters()
                                      ->where('status', 'published') 
                                      ->max('number');

@@ -31,10 +31,16 @@ class DashboardController extends Controller
                 ->get();
         }
         
-        $mangas = Manga::with('genres', 'latestPublishedChapter')
-                       ->withAvg('ratings', 'rating')
-                       ->latest()
-                       ->paginate(18);
+        $mangas = Manga::with(['genres', 'latestPublishedChapter'])
+            ->withAvg('ratings', 'rating')
+            ->whereHas('chapters', function ($query) {
+                $query->where('status', 'published');
+            })
+            ->withMax(['latestPublishedChapter as latest_chapter_date' => function ($query) {
+                $query->where('status', 'published');
+            }], 'created_at')
+            ->orderByDesc('latest_chapter_date')
+            ->paginate(18);
 
         return view('dashboard', compact('mangas', 'popularMangas'));
     }

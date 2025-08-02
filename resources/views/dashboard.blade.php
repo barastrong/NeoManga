@@ -7,12 +7,17 @@
     @if($popularMangas->isNotEmpty())
         <div class="mb-12">
             <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Manga Populer</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-5 gap-y-8">
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-x-4 gap-y-8">
                 @foreach($popularMangas as $manga)
                     <div>
                         <div class="relative group">
                             <a href="{{ route('manga.show', $manga->slug) }}">
                                 <div class="relative aspect-[3/4] rounded-md overflow-hidden shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                                    @if($manga->status === 'completed')
+                                        <div class="absolute top-6 left-[-34px] transform -rotate-45 bg-red-600 text-white font-bold text-xs uppercase px-8 py-1 shadow-md z-10">
+                                            Completed
+                                        </div>
+                                    @endif
                                     @if($manga->cover_image)
                                         <img src="{{ asset('storage/' . $manga->cover_image) }}" 
                                              alt="{{ $manga->title }}" 
@@ -46,7 +51,7 @@
                             @if($manga->latestPublishedChapter)
                             <a href="{{ route('chapter.show', $manga->latestPublishedChapter->slug ) }}" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                                 <div class="flex justify-between items-center text-sm mt-2 border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1">
-                                    Chapter {{ $manga->latestPublishedChapter->number }}
+                                    <span>Chapter {{ $manga->latestPublishedChapter->number }}</span>
                                     <span>
                                         {{ $manga->latestPublishedChapter->created_at->diffForHumans(['short' => true, 'parts' => 1]) }}
                                     </span>
@@ -71,13 +76,18 @@
 
     @if($mangas->count() > 0)
         <div>
-            <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Update Terbaru</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-5 gap-y-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Update Comic</h2>
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-x-4 gap-y-8">
                 @foreach($mangas as $manga)
                     <div>
                         <div class="relative group">
                             <a href="{{ route('manga.show', $manga->slug) }}">
                                 <div class="relative aspect-[3/4] rounded-md overflow-hidden shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                                    @if($manga->status === 'completed')
+                                        <div class="absolute top-6 left-[-34px] transform -rotate-45 bg-red-600 text-white font-bold text-xs uppercase px-8 py-1 shadow-md z-10">
+                                            Completed
+                                        </div>
+                                    @endif
                                     @if($manga->cover_image)
                                         <img src="{{ asset('storage/' . $manga->cover_image) }}" 
                                              alt="{{ $manga->title }}" 
@@ -111,7 +121,7 @@
                             @if($manga->latestPublishedChapter)
                             <a href="{{ route('chapter.show', $manga->latestPublishedChapter->slug ) }}" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                                 <div class="flex justify-between items-center text-sm mt-2 border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1">
-                                    Chapter {{ $manga->latestPublishedChapter->number }}
+                                    <span>Chapter {{ $manga->latestPublishedChapter->number }}</span>
                                     <span>
                                         {{ $manga->latestPublishedChapter->created_at->diffForHumans(['short' => true, 'parts' => 1]) }}
                                     </span>
@@ -133,7 +143,37 @@
             </div>
 
             <div class="mt-10">
-                {{ $mangas->links() }}
+                @if ($mangas->hasPages())
+                    <nav role="navigation" aria-label="Pagination Navigation" class="flex items-center justify-between">
+                        @if ($mangas->onFirstPage())
+                            <span class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 bg-gray-200 dark:bg-gray-700 rounded-md cursor-not-allowed">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                Previous
+                            </span>
+                        @else
+                            <a href="{{ $mangas->previousPageUrl() }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition ease-in-out duration-150">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                Previous
+                            </a>
+                        @endif
+
+                        <div class="hidden sm:block text-sm text-gray-700 dark:text-gray-400">
+                            Halaman <span class="font-medium text-gray-900 dark:text-white">{{ $mangas->currentPage() }}</span> dari <span class="font-medium text-gray-900 dark:text-white">{{ $mangas->lastPage() }}</span>
+                        </div>
+                        
+                        @if ($mangas->hasMorePages())
+                            <a href="{{ $mangas->nextPageUrl() }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition ease-in-out duration-150">
+                                Next
+                                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                            </a>
+                        @else
+                            <span class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 bg-gray-200 dark:bg-gray-700 rounded-md cursor-not-allowed">
+                                Next
+                                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                            </span>
+                        @endif
+                    </nav>
+                @endif
             </div>
         </div>
     @else

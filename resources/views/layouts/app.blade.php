@@ -88,21 +88,25 @@
                                 $inactiveClasses = 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:after:w-1/2';
                             @endphp
                             <a href="{{ route('dashboard') }}" class="{{ $navLinkClasses }} {{ request()->is('/') ? $activeClasses : $inactiveClasses }}">Home</a>
-                            <a href="{{ route('manga.list') }}" class="{{ $navLinkClasses }} {{ request()->is('manga*') ? $activeClasses : $inactiveClasses }}">Manga List</a>
+                            <a href="{{ route('manga.list') }}" class="{{ $navLinkClasses }} {{ request()->is('manga*') || request()->is('search') ? $activeClasses : $inactiveClasses }}">Manga List</a>
                             <a href="{{ route('history.index') }}" class="{{ $navLinkClasses }} {{ request()->is('history*') ? $activeClasses : $inactiveClasses }}">History</a>
                             <a href="{{ route('bookmark.index') }}" class="{{ $navLinkClasses }} {{ request()->is('bookmarks*') ? $activeClasses : $inactiveClasses }}">Bookmark</a>
                         </div>
                         
                         <div class="flex items-center space-x-2 sm:space-x-3">
                             <div class="hidden sm:block">
-                                <div class="relative">
+                                <form action="{{ route('manga.search') }}" method="GET" class="relative">
                                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                    <input type="search" placeholder="Cari manga..." class="search-input w-36 lg:w-56 bg-gray-100 dark:bg-gray-700/50 text-sm pl-10 pr-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300">
-                                </div>
+                                    <input name="q" type="search" placeholder="Cari manga..." class="w-36 lg:w-56 bg-gray-100 dark:bg-gray-700/50 text-sm pl-10 pr-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300" value="{{ request('q') ?? '' }}">
+                                </form>
                             </div>
 
                             <button @click="mobileSearchOpen = !mobileSearchOpen" class="sm:hidden btn-icon">
                                 <i class="fa-solid fa-magnifying-glass text-lg"></i>
+                            </button>
+
+                            <button id="autoRefreshToggle" aria-label="Toggle Auto Refresh" class="btn-icon" title="Toggle Auto Refresh">
+                                <i class="fa-solid fa-rotate text-lg"></i>
                             </button>
                             
                             <button id="themeToggle" aria-label="Toggle Theme" class="btn-icon">
@@ -111,7 +115,7 @@
                             </button>
 
                             @auth
-                                @if(Auth::check() && (Auth::user()->role === 'admin' || Auth::user()->is_admin))
+                                @if(Auth::check() && Auth::user()->isAdmin())
                                     <a href="{{ url('/admin') }}" aria-label="Admin Panel" class="btn-icon bg-red-600 text-white hover:bg-red-700">
                                         <i class="fa-solid fa-user-shield"></i>
                                     </a>
@@ -150,71 +154,34 @@
                 </div>
 
                 <div x-show="mobileSearchOpen" x-transition class="sm:hidden border-t border-gray-200 dark:border-gray-700/50" style="display: none;">
-                     <div class="relative p-4">
+                     <form action="{{ route('manga.search') }}" method="GET" class="relative p-4">
                         <i class="fa-solid fa-magnifying-glass absolute left-7 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="search" placeholder="Cari manga..." class="search-input w-full bg-gray-100 dark:bg-gray-700/50 text-sm pl-10 pr-4 py-2.5 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    </div>
+                        <input name="q" type="search" placeholder="Cari manga..." class="w-full bg-gray-100 dark:bg-gray-700/50 text-sm pl-10 pr-4 py-2.5 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500" value="{{ request('q') ?? '' }}">
+                    </form>
                 </div>
             </div>
         </header>
 
         <div x-show="mobileMenuOpen" class="lg:hidden fixed inset-0 z-50" style="display: none;">
-            <div 
-                @click="mobileMenuOpen = false"
-                x-show="mobileMenuOpen" 
-                x-transition:enter="transition-opacity ease-in-out duration-300"
-                x-transition:enter-start="opacity-0"
-                x-transition:enter-end="opacity-100"
-                x-transition:leave="transition-opacity ease-in-out duration-300"
-                x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0"
-                class="fixed inset-0 bg-black/50 backdrop-blur-sm"
-            ></div>
-
-            <div 
-                x-show="mobileMenuOpen"
-                x-transition:enter="transition ease-in-out duration-300 transform"
-                x-transition:enter-start="-translate-x-full"
-                x-transition:enter-end="translate-x-0"
-                x-transition:leave="transition ease-in-out duration-300 transform"
-                x-transition:leave-start="translate-x-0"
-                x-transition:leave-end="-translate-x-full"
-                class="relative w-72 max-w-[80vw] h-full bg-white dark:bg-gray-800 shadow-xl flex flex-col"
-            >
+            <div @click="mobileMenuOpen = false" x-show="mobileMenuOpen" x-transition:enter="transition-opacity ease-in-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-in-out duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black/50 backdrop-blur-sm"></div>
+            <div x-show="mobileMenuOpen" x-transition:enter="transition ease-in-out duration-300 transform" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in-out duration-300 transform" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full" class="relative w-72 max-w-[80vw] h-full bg-white dark:bg-gray-800 shadow-xl flex flex-col">
                 <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-                    <a href="{{ route('dashboard') }}" class="flex-shrink-0 flex items-center space-x-2">
-                        <i class="fa-solid fa-book-journal-whills text-indigo-600 dark:text-indigo-400 text-xl"></i>
-                        <span class="text-xl font-bold text-gray-800 dark:text-white">NeoManga</span>
-                    </a>
-                    <button @click="mobileMenuOpen = false" class="btn-icon">
-                        <i class="fa-solid fa-xmark text-2xl"></i>
-                    </button>
+                    <a href="{{ route('dashboard') }}" class="flex-shrink-0 flex items-center space-x-2"><i class="fa-solid fa-book-journal-whills text-indigo-600 dark:text-indigo-400 text-xl"></i><span class="text-xl font-bold text-gray-800 dark:text-white">NeoManga</span></a>
+                    <button @click="mobileMenuOpen = false" class="btn-icon"><i class="fa-solid fa-xmark text-2xl"></i></button>
                 </div>
-
                 <nav class="flex-grow p-4 space-y-2">
                     @php
                         $mobileLinkClasses = "flex items-center w-full px-4 py-3 text-base font-medium rounded-lg transition-colors";
                         $mobileActiveClasses = 'bg-indigo-50 dark:bg-gray-700/50 text-indigo-700 dark:text-indigo-400';
                         $mobileInactiveClasses = 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50';
                     @endphp
-                    <a href="{{ route('dashboard') }}" class="{{ $mobileLinkClasses }} {{ request()->is('/') ? $mobileActiveClasses : $mobileInactiveClasses }}">
-                        <i class="fa-solid fa-house w-6 mr-3"></i><span>Home</span>
-                    </a>
-                    <a href="{{ route('manga.list') }}" class="{{ $mobileLinkClasses }} {{ request()->is('manga*') ? $mobileActiveClasses : $mobileInactiveClasses }}">
-                        <i class="fa-solid fa-book w-6 mr-3"></i><span>Manga List</span>
-                    </a>
-                    <a href="{{ route('history.index') }}" class="{{ $mobileLinkClasses }} {{ request()->is('history*') ? $mobileActiveClasses : $mobileInactiveClasses }}">
-                        <i class="fa-solid fa-clock-rotate-left w-6 mr-3"></i><span>History</span>
-                    </a>
-                    <a href="{{ route('bookmark.index') }}" class="{{ $mobileLinkClasses }} {{ request()->is('bookmarks*') ? $mobileActiveClasses : $mobileInactiveClasses }}">
-                        <i class="fa-solid fa-bookmark w-6 mr-3"></i><span>Bookmark</span>
-                    </a>
+                    <a href="{{ route('dashboard') }}" class="{{ $mobileLinkClasses }} {{ request()->is('/') ? $mobileActiveClasses : $mobileInactiveClasses }}"><i class="fa-solid fa-house w-6 mr-3"></i><span>Home</span></a>
+                    <a href="{{ route('manga.list') }}" class="{{ $mobileLinkClasses }} {{ request()->is('manga*') || request()->is('search') ? $mobileActiveClasses : $mobileInactiveClasses }}"><i class="fa-solid fa-book w-6 mr-3"></i><span>Manga List</span></a>
+                    <a href="{{ route('history.index') }}" class="{{ $mobileLinkClasses }} {{ request()->is('history*') ? $mobileActiveClasses : $mobileInactiveClasses }}"><i class="fa-solid fa-clock-rotate-left w-6 mr-3"></i><span>History</span></a>
+                    <a href="{{ route('bookmark.index') }}" class="{{ $mobileLinkClasses }} {{ request()->is('bookmarks*') ? $mobileActiveClasses : $mobileInactiveClasses }}"><i class="fa-solid fa-bookmark w-6 mr-3"></i><span>Bookmark</span></a>
                 </nav>
-
                 @guest
-                    <div class="p-4 border-t border-gray-200 dark:border-gray-700">
-                        <a href="{{ route('login') }}" class="flex-1 btn-primary text-center w-full block">Login</a>
-                    </div>
+                    <div class="p-4 border-t border-gray-200 dark:border-gray-700"><a href="{{ route('login') }}" class="flex-1 btn-primary text-center w-full block">Login</a></div>
                 @endguest
             </div>
         </div>
@@ -227,15 +194,9 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     <div class="md:col-span-2 lg:col-span-1">
-                        <a href="{{ url('/') }}" class="flex items-center space-x-2 text-xl font-bold text-white mb-4">
-                            <i class="fa-solid fa-book-journal-whills text-indigo-400"></i>
-                            <span>NeoManga</span>
-                        </a>
-                        <p class="text-sm text-gray-400 leading-relaxed">
-                            Platform baca manga online terlengkap dengan update terbaru. Nikmati pengalaman membaca yang nyaman dan modern.
-                        </p>
+                        <a href="{{ url('/') }}" class="flex items-center space-x-2 text-xl font-bold text-white mb-4"><i class="fa-solid fa-book-journal-whills text-indigo-400"></i><span>NeoManga</span></a>
+                        <p class="text-sm text-gray-400 leading-relaxed">Platform baca manga online terlengkap dengan update terbaru. Nikmati pengalaman membaca yang nyaman dan modern.</p>
                     </div>
-                    
                     <div>
                         <h3 class="footer-heading">Navigasi</h3>
                         <ul class="space-y-2">
@@ -244,7 +205,6 @@
                             <li><a href="{{ url('/categories') }}" class="footer-link">Kategori</a></li>
                         </ul>
                     </div>
-                    
                     <div>
                         <h3 class="footer-heading">Informasi</h3>
                         <ul class="space-y-2">
@@ -253,7 +213,6 @@
                             <li><a href="#" class="footer-link">Syarat & Ketentuan</a></li>
                         </ul>
                     </div>
-                    
                     <div>
                         <h3 class="footer-heading">Ikuti Kami</h3>
                         <div class="flex space-x-3">
@@ -264,7 +223,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-500">
                     <p>© {{ date('Y') }} {{ config('app.name', 'NeoManga') }}. All Rights Reserved.</p>
                 </div>
@@ -274,61 +232,94 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const themeToggle = document.getElementById('themeToggle');
-            const html = document.documentElement;
+            try {
+                const themeToggle = document.getElementById('themeToggle');
+                const html = document.documentElement;
 
-            const applyTheme = (theme) => {
-                if (theme === 'dark') {
-                    html.classList.add('dark');
+                const applyTheme = (theme) => {
+                    html.classList.toggle('dark', theme === 'dark');
+                };
+
+                const toggleTheme = () => {
+                    const newTheme = html.classList.contains('dark') ? 'light' : 'dark';
+                    localStorage.setItem('theme', newTheme);
+                    applyTheme(newTheme);
+                };
+
+                const savedTheme = localStorage.getItem('theme');
+                const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                
+                if (savedTheme) {
+                    applyTheme(savedTheme);
                 } else {
-                    html.classList.remove('dark');
+                    applyTheme(systemPrefersDark ? 'dark' : 'light');
                 }
-            };
 
-            const toggleTheme = () => {
-                const newTheme = html.classList.contains('dark') ? 'light' : 'dark';
-                localStorage.setItem('theme', newTheme);
-                applyTheme(newTheme);
-            };
+                if (themeToggle) {
+                    themeToggle.addEventListener('click', toggleTheme);
+                }
 
-            const savedTheme = localStorage.getItem('theme');
-            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            
-            if (savedTheme) {
-                applyTheme(savedTheme);
-            } else {
-                applyTheme(systemPrefersDark ? 'light' : 'dark');
-            }
+                const autoRefreshToggle = document.getElementById('autoRefreshToggle');
+                const refreshIcon = autoRefreshToggle ? autoRefreshToggle.querySelector('i') : null;
+                let refreshTimer = null;
+                const autoRefreshInterval = 15000;
 
-            if (themeToggle) {
-                themeToggle.addEventListener('click', toggleTheme);
-            }
-
-            const searchInputs = document.querySelectorAll('.search-input');
-            searchInputs.forEach(input => {
-                input.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        const searchTerm = input.value.trim();
-                        if (searchTerm) {
-                            window.location.href = `/search?q=${encodeURIComponent(searchTerm)}`;
-                        }
+                const startAutoRefresh = () => {
+                    if (refreshTimer) return;
+                    if (refreshIcon) {
+                        refreshIcon.classList.add('fa-spin', 'text-indigo-500', 'dark:text-indigo-400');
+                        autoRefreshToggle.setAttribute('title', 'Auto Refresh is ON');
                     }
-                });
-            });
+                    refreshTimer = setInterval(() => {
+                        window.location.reload();
+                    }, autoRefreshInterval);
+                };
 
-            let lastScrollTop = 0;
-            const header = document.getElementById('page-header');
-            if (header) {
-                window.addEventListener('scroll', () => {
-                    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                    if (scrollTop > lastScrollTop && scrollTop > header.offsetHeight) {
-                        header.style.transform = 'translateY(-100%)';
+                const stopAutoRefresh = () => {
+                    clearInterval(refreshTimer);
+                    refreshTimer = null;
+                    if (refreshIcon) {
+                        refreshIcon.classList.remove('fa-spin', 'text-indigo-500', 'dark:text-indigo-400');
+                        autoRefreshToggle.setAttribute('title', 'Auto Refresh is OFF');
+                    }
+                };
+
+                const toggleAutoRefresh = () => {
+                    const isEnabled = localStorage.getItem('autoRefresh') === 'true';
+                    if (isEnabled) {
+                        localStorage.setItem('autoRefresh', 'false');
+                        stopAutoRefresh();
                     } else {
-                        header.style.transform = 'translateY(0)';
+                        localStorage.setItem('autoRefresh', 'true');
+                        startAutoRefresh();
                     }
-                    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-                }, { passive: true });
+                };
+
+                if (autoRefreshToggle && refreshIcon) {
+                    if (localStorage.getItem('autoRefresh') === 'true') {
+                        startAutoRefresh();
+                    } else {
+                        stopAutoRefresh();
+                    }
+                    autoRefreshToggle.addEventListener('click', toggleAutoRefresh);
+                }
+                
+                let lastScrollTop = 0;
+                const header = document.getElementById('page-header');
+                if (header) {
+                    window.addEventListener('scroll', () => {
+                        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                        if (scrollTop > lastScrollTop && scrollTop > header.offsetHeight) {
+                            header.style.transform = 'translateY(-100%)';
+                        } else {
+                            header.style.transform = 'translateY(0)';
+                        }
+                        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+                    }, { passive: true });
+                }
+
+            } catch (error) {
+                console.error("An error occurred in the main script:", error);
             }
         });
     </script>

@@ -27,7 +27,7 @@
     @endif
 
     @if($histories->isNotEmpty())
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-5 gap-y-8">
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-x-4 gap-y-8">
             @foreach($histories as $history)
                 @if($history->manga)
                     <div>
@@ -42,6 +42,14 @@
                             
                             <a href="{{ route('manga.show', $history->manga->slug) }}" class="group">
                                 <div class="relative aspect-[3/4] rounded-md overflow-hidden shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                                    {{-- === BLOK KODE BARU DIMULAI DI SINI === --}}
+                                    @if($history->manga->status === 'completed')
+                                        <div class="absolute top-6 left-[-34px] transform -rotate-45 bg-red-600 text-white font-bold text-xs uppercase px-8 py-1 shadow-md z-10">
+                                            Completed
+                                        </div>
+                                    @endif
+                                    {{-- === BLOK KODE BARU BERAKHIR DI SINI === --}}
+                                    
                                     @if($history->manga->cover_image)
                                         <img src="{{ asset('storage/' . $history->manga->cover_image) }}" 
                                              alt="{{ $history->manga->title }}" 
@@ -75,7 +83,7 @@
                             @if($history->chapter)
                                 <a href="{{ route('chapter.show', $history->chapter->slug ) }}" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                                     <div class="flex justify-between items-center text-sm mt-2 border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1">
-                                        Chapter {{ $history->chapter->number }}
+                                        <span>Chapter {{ $history->chapter->number }}</span>
                                         <span>
                                             {{ $history->created_at->diffForHumans(['short' => true, 'parts' => 1]) }}
                                         </span>

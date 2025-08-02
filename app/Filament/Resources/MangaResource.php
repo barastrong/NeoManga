@@ -56,7 +56,6 @@ class MangaResource extends Resource
 
                                 TextInput::make('alternative_title')
                                     ->label('Alternative Title')
-                                    ->required()
                                     ->maxLength(255),
 
                                 TextInput::make('slug')

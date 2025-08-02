@@ -13,7 +13,6 @@
         $processedContent = str_replace($mentionString, $link, $processedContent);
     }
 
-
     $processedContent = preg_replace_callback(
         '/(?<!\w)@(\w+)/',
         function ($matches) {
@@ -29,7 +28,6 @@
         },
         $processedContent
     );
-
 @endphp
 
 <p class="mt-2 text-gray-700 dark:text-gray-300 break-words">{!! nl2br($processedContent) !!}</p>

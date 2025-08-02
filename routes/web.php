@@ -20,6 +20,7 @@ Route::post('/comments/{comment}/like', [CommentController::class, 'toggleLike']
 Route::get('/manga', [MangaController::class, 'mangaList'])->name('manga.list');
 Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmark.index');
 Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
+Route::get('/search', [MangaController::class, 'search'])->name('manga.search');
 
 Route::middleware('auth', 'verified')->group(function () {
     Route::post('/bookmark/toggle/{manga}', [BookmarkController::class, 'toggle'])->name('bookmark.toggle');

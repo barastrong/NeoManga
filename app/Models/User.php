@@ -9,7 +9,6 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -21,9 +20,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'photo_profile',
         'role',
         'otp_code',
         'otp_expires_at',
+        'google_id'
     ];
 
     /**
@@ -49,8 +50,8 @@ class User extends Authenticatable
             'otp_expires_at' => 'datetime',
         ];
     }
-        /**
-     * Check if the user has an admin role.
+    
+    /**
      *
      * @return bool
      */

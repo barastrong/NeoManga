@@ -29,22 +29,41 @@ class MangaController extends Controller
             $query->where('type', $request->type);
         }
 
-        $order = $request->input('order', 'latest');
+        $order = $request->input('order', 'default');
+
         switch ($order) {
+            case 'updated':
+                $query->whereHas('chapters', function ($q) {
+                        $q->where('status', 'published');
+                    })
+                    ->withMax(['latestPublishedChapter as latest_chapter_date' => function ($q) {
+                        $q->where('status', 'published');
+                    }], 'created_at')
+                    ->orderByDesc('latest_chapter_date');
+                break;
             case 'popularity':
-                $query->withCount('bookmarks')->orderBy('bookmarks_count', 'desc');
+                $query->withCount('bookmarks')->orderByDesc('bookmarks_count');
                 break;
             case 'rating':
-                $query->withAvg('ratings', 'rating')->orderBy('ratings_avg_rating', 'desc');
+                $query->withAvg('ratings', 'rating')->orderByDesc('ratings_avg_rating');
+                break;
+            case 'a-z':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'z-a':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'newest':
+                $query->latest('created_at');
                 break;
             default:
-                $query->latest('updated_at');
+                $query->latest('created_at');
                 break;
         }
 
         $mangas = $query->with('latestPublishedChapter')
                         ->withAvg('ratings', 'rating')
-                        ->paginate(30) // Lebih banyak item per halaman
+                        ->paginate(50)
                         ->withQueryString();
 
         $genres = Genre::orderBy('name')->get();
@@ -87,5 +106,25 @@ class MangaController extends Controller
         }
         
         return view('manga.show', compact('manga', 'chapters', 'isBookmarked', 'readChapters', 'userHistories'));
+    }
+
+        public function search(Request $request)
+    {
+        $searchTerm = $request->input('q');
+
+        if (empty($searchTerm)) {
+            return redirect()->route('manga.list');
+        }
+
+        $query = Manga::query()->where('title', 'like', '%' . $searchTerm . '%');
+
+        $mangas = $query->with('latestPublishedChapter')
+                        ->withAvg('ratings', 'rating')
+                        ->paginate(50)
+                        ->withQueryString();
+
+        $genres = Genre::orderBy('name')->get();
+
+        return view('manga.list', compact('mangas', 'genres', 'searchTerm'));
     }
 }

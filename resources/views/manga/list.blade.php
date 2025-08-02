@@ -5,8 +5,9 @@
 @section('content')
 <div class="container mx-auto px-4 py-8 md:px-6 md:py-10">
     <form method="GET" action="{{ route('manga.list') }}" id="filterForm">
+        {{-- ... Bagian filter tidak diubah ... --}}
         <div class="p-4 mb-8 rounded-lg shadow-sm bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
                 <div>
                     <label for="genreBtn" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Genre</label>
                     <button 
@@ -31,32 +32,53 @@
 
                 <div>
                     <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-                    <select onchange="this.form.submit()" id="status" name="status" class="w-full h-10 px-3 py-2 text-base border rounded-md shadow-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-gray-100">
-                        <option value="">All</option>
-                        <option value="ongoing" @if(request('status') == 'ongoing') selected @endif>Ongoing</option>
-                        <option value="completed" @if(request('status') == 'completed') selected @endif>Completed</option>
-                    </select>
+                    <div class="relative">
+                        <select onchange="this.form.submit()" id="status" name="status" class="w-full h-10 pl-3 pr-10 py-2 text-base border rounded-md shadow-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-gray-100 appearance-none">
+                            <option value="">All</option>
+                            <option value="ongoing" @if(request('status') == 'ongoing') selected @endif>Ongoing</option>
+                            <option value="completed" @if(request('status') == 'completed') selected @endif>Completed</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                        </div>
+                    </div>
                 </div>
+
                 <div>
                     <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
-                    <select onchange="this.form.submit()" id="type" name="type" class="w-full h-10 px-3 py-2 text-base border rounded-md shadow-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-gray-100">
-                        <option value="">All</option>
-                        <option value="manga" @if(request('type') == 'manga') selected @endif>Manga</option>
-                        <option value="manhwa" @if(request('type') == 'manhwa') selected @endif>Manhwa</option>
-                        <option value="manhua" @if(request('type') == 'manhua') selected @endif>Manhua</option>
-                    </select>
+                    <div class="relative">
+                        <select onchange="this.form.submit()" id="type" name="type" class="w-full h-10 pl-3 pr-10 py-2 text-base border rounded-md shadow-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-gray-100 appearance-none">
+                            <option value="">All</option>
+                            <option value="manga" @if(request('type') == 'manga') selected @endif>Manga</option>
+                            <option value="manhwa" @if(request('type') == 'manhwa') selected @endif>Manhwa</option>
+                            <option value="manhua" @if(request('type') == 'manhua') selected @endif>Manhua</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                             <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                        </div>
+                    </div>
                 </div>
+                
                 <div>
                     <label for="order" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Order</label>
-                    <select onchange="this.form.submit()" id="order" name="order" class="w-full h-10 px-3 py-2 text-base border rounded-md shadow-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-gray-100">
-                        <option value="latest" @if(request('order', 'latest') == 'latest') selected @endif>Latest</option>
-                        <option value="popularity" @if(request('order') == 'popularity') selected @endif>Popularity</option>
-                        <option value="rating" @if(request('order') == 'rating') selected @endif>Rating</option>
-                    </select>
+                    <div class="relative">
+                        <select onchange="this.form.submit()" id="order" name="order" class="w-full h-10 pl-3 pr-10 py-2 text-base border rounded-md shadow-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-gray-100 appearance-none">
+                            <option value="default" @if(request('order', 'default') == 'default') selected @endif>Default</option>
+                            <option value="updated" @if(request('order') == 'updated') selected @endif>Updated</option>
+                            <option value="newest" @if(request('order') == 'newest') selected @endif>Added</option>
+                            <option value="popularity" @if(request('order') == 'popularity') selected @endif>Popularity</option>
+                            <option value="rating" @if(request('order') == 'rating') selected @endif>Rating</option>
+                            <option value="z-a" @if(request('order') == 'z-a') selected @endif>Z-A</option>
+                            <option value="a-z" @if(request('order') == 'a-z') selected @endif>A-Z</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                             <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        
+        {{-- ... Bagian filter (modal genre) tidak diubah ... --}}
         <div id="genreModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 hidden">
             <div id="genreModalContent" class="w-full max-w-2xl mx-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl flex flex-col">
                 <div class="p-5 border-b border-gray-200 dark:border-gray-700">
@@ -95,11 +117,19 @@
     </form>
     
     @if($mangas->count() > 0)
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-5 gap-y-8">
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-x-4 gap-y-8">
             @foreach($mangas as $manga)
                 <div>
                     <a href="{{ route('manga.show', $manga->slug) }}" class="block group">
                         <div class="relative aspect-[3/4] rounded-md overflow-hidden shadow-lg bg-gray-200 dark:bg-gray-800">
+                            {{-- === [1] BLOK KODE BARU DIMULAI DI SINI: LABEL "COMPLETED" === --}}
+                            @if($manga->status === 'completed')
+                                <div class="absolute top-6 left-[-34px] transform -rotate-45 bg-red-600 text-white font-bold text-xs uppercase px-8 py-1 shadow-md z-10">
+                                    Completed
+                                </div>
+                            @endif
+                            {{-- === BLOK KODE BARU BERAKHIR DI SINI === --}}
+
                             @if($manga->cover_image)
                                 <img src="{{ asset('storage/' . $manga->cover_image) }}" alt="{{ $manga->title }}" class="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105">
                             @else
@@ -135,16 +165,52 @@
                             <p class="mt-2 text-sm text-gray-500 dark:text-gray-500 italic">Belum ada chapter</p>
                         @endif
                         <div class="flex items-center mt-2">
+                            @php $rounded_rating = round($manga->ratings_avg_rating * 2) / 2; @endphp
                             @for ($i = 1; $i <= 5; $i++)
-                                <svg class="w-4 h-4 @if($i <= round($manga->ratings_avg_rating * 2) / 2) text-yellow-400 @else text-gray-300 dark:text-gray-600 @endif" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                <svg class="w-4 h-4 @if($i <= $rounded_rating) text-yellow-400 @else text-gray-300 dark:text-gray-600 @endif" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                             @endfor
                         </div>
                     </div>
                 </div>
             @endforeach
         </div>
+
+        {{-- === [2] GANTI {{ $mangas->links() }} DENGAN BLOK PAGINASI KUSTOM DI BAWAH INI === --}}
         <div class="mt-10">
-            {{ $mangas->links() }}
+            @if ($mangas->hasPages())
+                <nav role="navigation" aria-label="Pagination Navigation" class="flex items-center justify-between">
+                    {{-- Tombol Previous --}}
+                    @if ($mangas->onFirstPage())
+                        <span class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 bg-gray-200 dark:bg-gray-700 rounded-md cursor-not-allowed">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            Previous
+                        </span>
+                    @else
+                        <a href="{{ $mangas->previousPageUrl() }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition ease-in-out duration-150">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            Previous
+                        </a>
+                    @endif
+
+                    {{-- Informasi Halaman --}}
+                    <div class="hidden sm:block text-sm text-gray-700 dark:text-gray-400">
+                        Halaman <span class="font-medium text-gray-900 dark:text-white">{{ $mangas->currentPage() }}</span> dari <span class="font-medium text-gray-900 dark:text-white">{{ $mangas->lastPage() }}</span>
+                    </div>
+                    
+                    {{-- Tombol Next --}}
+                    @if ($mangas->hasMorePages())
+                        <a href="{{ $mangas->nextPageUrl() }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition ease-in-out duration-150">
+                            Next
+                            <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                        </a>
+                    @else
+                        <span class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 bg-gray-200 dark:bg-gray-700 rounded-md cursor-not-allowed">
+                            Next
+                            <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                        </span>
+                    @endif
+                </nav>
+            @endif
         </div>
     @else
         <div class="text-center py-20 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
@@ -157,6 +223,7 @@
 @endsection
 
 @push('scripts')
+{{-- ... Bagian script tidak diubah ... --}}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const genreBtn = document.getElementById('genreBtn');

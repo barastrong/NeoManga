@@ -71,35 +71,24 @@ class Chapter extends Model
         return $query->where('status', 'draft');
     }
 
-    /**
-     * Helper method untuk mendapatkan chapter_images sebagai array
-     */
     private function getChapterImagesArray()
     {
         $images = $this->chapter_images;
         
-        // Jika masih berupa string JSON, decode dulu
         if (is_string($images)) {
             $images = json_decode($images, true);
         }
         
-        // Pastikan return array
         return is_array($images) ? $images : [];
     }
 
-    /**
-     * Accessor untuk mendapatkan cover image dari chapter_images
-     */
     public function getCoverImageUrlAttribute()
     {
         $images = $this->getChapterImagesArray();
 
-        // Jika chapter_images adalah array dan tidak kosong
         if (!empty($images)) {
-            // Pastikan path sudah benar dengan storage
             $imagePath = $images[0];
             
-            // Cek apakah path sudah mengandung 'storage/' atau belum
             if (str_starts_with($imagePath, 'storage/')) {
                 return asset($imagePath);
             } else {
@@ -110,16 +99,12 @@ class Chapter extends Model
         return asset('images/no-image.png');
     }
 
-    /**
-     * Accessor untuk mendapatkan semua image URLs
-     */
     public function getImageUrlsAttribute()
     {
         $images = $this->getChapterImagesArray();
 
         if (!empty($images)) {
             return array_map(function ($image) {
-                // Cek apakah path sudah mengandung 'storage/' atau belum
                 if (str_starts_with($image, 'storage/')) {
                     return asset($image);
                 } else {
@@ -131,18 +116,12 @@ class Chapter extends Model
         return [];
     }
 
-    /**
-     * Accessor untuk mendapatkan jumlah gambar
-     */
     public function getImageCountAttribute()
     {
         $images = $this->getChapterImagesArray();
         return count($images);
     }
 
-    /**
-     * Accessor untuk status yang lebih readable
-     */
     public function getStatusLabelAttribute()
     {
         return match($this->status) {
@@ -153,9 +132,15 @@ class Chapter extends Model
         };
     }
 
-    /**
-     * Method untuk mendapatkan first image untuk preview
-     */
+       public function latestPublishedChapter()
+    {
+        return $this->hasOne(Chapter::class)->ofMany([
+            'created_at' => 'max',
+        ], function ($query) {
+            $query->where('status', 'published');
+        });
+    }
+
     public function getFirstImageAttribute()
     {
         $images = $this->getChapterImagesArray();
@@ -167,9 +152,6 @@ class Chapter extends Model
         return null;
     }
 
-    /**
-     * Accessor untuk mendapatkan first image URL untuk preview
-     */
     public function getFirstImageUrlAttribute()
     {
         $images = $this->getChapterImagesArray();
@@ -177,7 +159,6 @@ class Chapter extends Model
         if (!empty($images)) {
             $imagePath = $images[0];
             
-            // Cek apakah path sudah mengandung 'storage/' atau belum
             if (str_starts_with($imagePath, 'storage/')) {
                 return asset($imagePath);
             } else {

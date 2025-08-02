@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::factory()->create([
-            'name' => 'Test User',
+            'name' => 'NeoManga - Admin',
             'email' => 'Test@gmail.com',
             'password' => Hash::make('HelloWorld'),
         ]);

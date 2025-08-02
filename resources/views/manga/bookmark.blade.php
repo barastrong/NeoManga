@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Bookmark -  NeoManga')
+@section('title', 'Bookmark - NeoManga')
 
 @section('content')
 
@@ -14,11 +14,11 @@
     @endif
 
     @if($bookmarks->isNotEmpty())
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-5 gap-y-8">
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-x-4 gap-y-8">
             @foreach($bookmarks as $bookmark)
                 @if($bookmark->manga)
                     <div>
-                        <div class="relative group"> {{-- Pindahkan 'group' ke parent agar hover bisa diakses tombol hapus --}}
+                        <div class="relative group">
                             <form action="{{ route('bookmark.destroy', $bookmark->id) }}" method="POST" class="absolute top-2 left-2 z-20">
                                 @csrf
                                 @method('DELETE')
@@ -29,6 +29,14 @@
                             
                             <a href="{{ route('manga.show', $bookmark->manga->slug) }}">
                                 <div class="relative aspect-[3/4] rounded-md overflow-hidden shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                                    {{-- === BLOK KODE BARU DIMULAI DI SINI === --}}
+                                    @if($bookmark->manga->status === 'completed')
+                                        <div class="absolute top-6 left-[-34px] transform -rotate-45 bg-red-600 text-white font-bold text-xs uppercase px-8 py-1 shadow-md z-10">
+                                            Completed
+                                        </div>
+                                    @endif
+                                    {{-- === BLOK KODE BARU BERAKHIR DI SINI === --}}
+
                                     @if($bookmark->manga->cover_image)
                                         <img src="{{ asset('storage/' . $bookmark->manga->cover_image) }}" 
                                              alt="{{ $bookmark->manga->title }}" 
@@ -60,14 +68,14 @@
                             </a>
                             
                             @if($bookmark->manga->latestPublishedChapter)
-                                <a href="{{ route('chapter.show', $bookmark->manga->latestPublishedChapter  ->slug ) }}" class="block text-sm mt-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                                <a href="{{ route('chapter.show', $bookmark->manga->latestPublishedChapter->slug ) }}" class="block text-sm mt-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                                     <div class="flex justify-between items-center border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1">
                                         <span>Chapter {{ $bookmark->manga->latestPublishedChapter->number }}</span>
-                                        <span class="text-xs text-gray-500">{{ $bookmark->updated_at->diffForHumans(['short' => true, 'parts' => 1]) }}</span>
+                                        <span class="text-xs text-gray-500">{{ $bookmark->manga->latestPublishedChapter->created_at->diffForHumans(['short' => true, 'parts' => 1]) }}</span>
                                     </div>
                                 </a>
                             @else
-                                <p class="mt-2 text-sm italic text-gray-500 dark:text-gray-400">Belum pernah dibaca</p>
+                                <p class="mt-2 text-sm italic text-gray-500 dark:text-gray-400">Belum ada chapter</p>
                             @endif
 
                             <div class="flex items-center mt-2">
@@ -87,9 +95,9 @@
         </div>
     @else
         <div class="text-center py-20 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
-            <svg class="w-16 h-16 mx-auto mb-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-            <h3 class="text-xl font-medium mb-2 text-gray-900 dark:text-gray-100">Riwayat Baca Anda Kosong</h3>
-            <p class="text-gray-500 dark:text-gray-400 text-sm">Manga yang Anda bookmark atau baca akan muncul di sini.</p>
+            <svg class="w-16 h-16 mx-auto mb-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+            <h3 class="text-xl font-medium mb-2 text-gray-900 dark:text-gray-100">Bookmark Anda Kosong</h3>
+            <p class="text-gray-500 dark:text-gray-400 text-sm">Manga yang Anda tandai akan muncul di sini.</p>
         </div>
     @endif
 </div>
@@ -99,8 +107,8 @@
 <div class="container mx-auto px-4 py-8 md:px-6 md:py-10">
     <div class="text-center py-20 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
         <svg class="w-16 h-16 mx-auto mb-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-        <h3 class="text-xl font-medium mb-2 text-gray-900 dark:text-gray-100">Akses Riwayat Baca Anda</h3>
-        <p class="text-gray-500 dark:text-gray-400 mb-6">Silakan login untuk melihat dan mengelola riwayat manga yang telah Anda baca.</p>
+        <h3 class="text-xl font-medium mb-2 text-gray-900 dark:text-gray-100">Akses Bookmark Anda</h3>
+        <p class="text-gray-500 dark:text-gray-400 mb-6">Silakan login untuk melihat dan mengelola manga yang telah Anda tandai.</p>
         <a href="{{ route('login') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md text-sm transition-colors">
             Login
         </a>

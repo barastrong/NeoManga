@@ -17,9 +17,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->boolean('email_verified')->nullable();
             $table->string('otp_code', 6)->nullable();
+            $table->string('photo_profile')->nullable();
             $table->timestamp('otp_expires_at')->nullable();
             $table->string('password');
             $table->string('role')->default('user');
+            $table->string('google_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
