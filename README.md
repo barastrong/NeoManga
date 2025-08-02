@@ -64,7 +64,7 @@ Ikuti langkah-langkah berikut untuk menjalankan NeoManga di lingkungan lokal And
 
 1.  **Clone repositori:**
     ```bash
-    git clone https://github.com/your-username/neomanga.git
+    git clone https://github.com/barastrong/neomanga.git
     cd neomanga
     ```
 
