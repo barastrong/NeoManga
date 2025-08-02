@@ -6,7 +6,8 @@ Saya akan membuatkan draf lengkap untuk file `README.md` proyek **NeoManga** And
 
 # NeoManga - A Modern Web Reader for Manga & Comics
 
-![NeoManga Showcase](https://user-images.githubusercontent.com/12345/your-banner-image-url.png) <!-- Ganti URL ini dengan screenshot banner proyek Anda -->
+![NeoManga Showcase](![Uploading image.png…]()
+) <!-- Ganti URL ini dengan screenshot banner proyek Anda -->
 
 <p align="center">
   <img src="https://img.shields.io/badge/Laravel-10.x-FF2D20?style=for-the-badge&logo=laravel" alt="Laravel">
