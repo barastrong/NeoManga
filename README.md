@@ -32,8 +32,8 @@ Saya akan membuatkan draf lengkap untuk file `README.md` proyek **NeoManga** And
 
 ## 🚀 Teknologi yang Digunakan
 
--   **Backend**: Laravel 10, PHP 8.1+
--   **Frontend**: Tailwind CSS 3, Alpine.js
+-   **Backend**: Laravel 12, PHP 8.1+
+-   **Frontend**: Tailwind CSS 3
 -   **Database**: MySQL / PostgreSQL
 -   **Development Tools**: Vite, Composer, NPM
 
