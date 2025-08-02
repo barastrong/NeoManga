@@ -6,13 +6,13 @@ Saya akan membuatkan draf lengkap untuk file `README.md` proyek **NeoManga** And
 
 # NeoManga - A Modern Web Reader for Manga & Comics
 
-![NeoManga Showcase](docs/images/Dashboard_Dark.png) <!-- Ganti URL ini dengan screenshot banner proyek Anda -->
+![NeoManga Showcase](docs/images/Dashboard_Dark.png)
 
 <p align="center">
   <img src="https://img.shields.io/badge/Laravel-10.x-FF2D20?style=for-the-badge&logo=laravel" alt="Laravel">
   <img src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php" alt="PHP">
   <img src="https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind CSS">
-  <img src="https://img.shields.io/github/license/barastrong/neomanga?style=for-the-badge" alt="License"> <!-- Ganti 'your-username' -->
+  <img src="https://img.shields.io/github/license/barastrong/neomanga?style=for-the-badge" alt="License">
 </p>
 
 **NeoManga** adalah sebuah aplikasi web yang elegan dan modern, dibangun dengan Laravel, yang dirancang untuk memberikan pengalaman membaca manga, manhwa, manhua, dan webtoon yang lancar dan menyenangkan. Dengan antarmuka yang bersih, desain responsif, dan fitur-fitur yang berpusat pada pengguna, NeoManga bertujuan untuk menjadi platform pilihan bagi para penggemar komik.
@@ -43,12 +43,11 @@ Saya akan membuatkan draf lengkap untuk file `README.md` proyek **NeoManga** And
 
 | Halaman Utama (Light Mode)                               | Halaman Baca (Dark Mode)                               |
 | :-------------------------------------------------------: | :-----------------------------------------------------: |
-| ![Homepage Light](https://user-images.githubusercontent.com/12345/homepage-light.png) | ![Reader Dark](https://user-images.githubusercontent.com/12345/reader-dark.png) |
+| ![Homepage Light](docs/images/Dashboard_White.png) | ![Reader Dark](docs/images/Dashboard_Dark.png) |
 
 | Profil Pengguna                                          | Menu Mobile                                          |
 | :------------------------------------------------------: | :---------------------------------------------------: |
-| ![Profile](https://user-images.githubusercontent.com/12345/profile-page.png) | ![Mobile Menu](https://user-images.githubusercontent.com/12345/mobile-menu.png) |
-<!-- Ganti URL placeholder di atas dengan URL screenshot asli dari proyek Anda -->
+| ![Profile](https://user-images.githubusercontent.com/12345/profile-page.png) | ![Mobile Menu](docs/images/Mobile_Dashboard.png) |
 
 ## 🛠️ Instalasi & Setup Lokal
 
@@ -148,4 +147,4 @@ Proyek ini dilisensikan di bawah [MIT License](LICENSE.md).
 
 ---
 
-Dibuat dengan ❤️ oleh [Nama Anda] <!-- Ganti dengan nama atau username Anda -->
+Dibuat dengan ❤️ oleh [Error] <!-- Ganti dengan nama atau username Anda -->
