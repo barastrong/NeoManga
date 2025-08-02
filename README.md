@@ -27,7 +27,7 @@
 ## 🚀 Teknologi yang Digunakan
 
 -   **Backend**: Laravel 12, PHP 8.1+
--   **Frontend**: Tailwind CSS 3, Alpine.js
+-   **Frontend**: Tailwind CSS 3
 -   **Database**: MySQL / PostgreSQL
 -   **Development Tools**: Vite, Composer, NPM
 
