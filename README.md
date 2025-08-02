@@ -1,9 +1,3 @@
-Tentu saja! Menjelaskan proyek di GitHub dengan baik adalah kunci untuk menarik kontributor, menunjukkan keahlian Anda, dan membantu diri Anda sendiri di masa depan.
-
-Saya akan membuatkan draf lengkap untuk file `README.md` proyek **NeoManga** Anda. Draf ini profesional, detail, dan mencakup semua aspek penting berdasarkan kode layout yang telah kita diskusikan. Anda tinggal menyalin dan menempelkannya ke dalam file `README.md` di root proyek GitHub Anda.
-
----
-
 # NeoManga - A Modern Web Reader for Manga & Comics
 
 ![NeoManga Showcase](docs/images/Dashboard_Dark.png)
@@ -32,7 +26,7 @@ Saya akan membuatkan draf lengkap untuk file `README.md` proyek **NeoManga** And
 
 ## 🚀 Teknologi yang Digunakan
 
--   **Backend**: Laravel 10, PHP 8.1+
+-   **Backend**: Laravel 12, PHP 8.1+
 -   **Frontend**: Tailwind CSS 3, Alpine.js
 -   **Database**: MySQL / PostgreSQL
 -   **Development Tools**: Vite, Composer, NPM
@@ -54,7 +48,6 @@ Saya akan membuatkan draf lengkap untuk file `README.md` proyek **NeoManga** And
 Ikuti langkah-langkah berikut untuk menjalankan NeoManga di lingkungan lokal Anda.
 
 **Prasyarat:**
--   PHP >= 8.1
 -   Composer
 -   Node.js & NPM
 -   Database (misalnya, MySQL, MariaDB)
