@@ -1,22 +1,31 @@
-// src/pages/HistoryPage.tsx
-
 import React, { useState, useEffect, useCallback } from 'react';
 import apiRoutes from '../routes/route';
-import type { History, PaginatedResponse } from '../types/manga'; // Sesuaikan path
-import HistoryCard from '../components/HistoryCard'; // Sesuaikan path
+import type { History, PaginatedResponse } from '../types/manga';
+import HistoryCard from '../components/HistoryCard';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 const HistoryPage: React.FC = () => {
   const [historyData, setHistoryData] = useState<PaginatedResponse<History> | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [initialLoading, setInitialLoading] = useState<boolean>(true);
+  const [pageLoading, setPageLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
 
-  const fetchHistories = useCallback(async (url: string = '/history') => {
-    setLoading(true);
+  const fetchHistories = useCallback(async (fullUrl: string = '/history') => {
+    const isInitial = fullUrl === '/history';
+    if (isInitial) {
+      setInitialLoading(true);
+    } else {
+      setPageLoading(true);
+    }
     setError(null);
+    
     try {
-      // Pastikan token sudah di-set di instance axios Anda
-      const response = await apiRoutes.get<PaginatedResponse<History>>(url);
+      const urlObject = new URL(fullUrl, window.location.origin);
+      const relativePath = urlObject.pathname + urlObject.search;
+
+      const response = await apiRoutes.get<PaginatedResponse<History>>(relativePath);
       setHistoryData(response.data);
     } catch (err: any) {
       if (err.response && err.response.status === 401) {
@@ -26,7 +35,8 @@ const HistoryPage: React.FC = () => {
       }
       console.error(err);
     } finally {
-      setLoading(false);
+      setInitialLoading(false);
+      setPageLoading(false);
     }
   }, []);
 
@@ -64,8 +74,8 @@ const HistoryPage: React.FC = () => {
   };
 
 
-  if (loading) {
-    return <div className="container mx-auto px-4 py-8 text-center">Memuat riwayat...</div>;
+  if (initialLoading) {
+    return <div className="flex justify-center items-center h-96"><FontAwesomeIcon icon={faSpinner} spin size="3x" /></div>;
   }
 
   if (error) {
@@ -88,12 +98,12 @@ const HistoryPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8 md:px-6 md:py-10">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">History</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Riwayat Baca</h1>
         {histories.length > 0 && (
           <button 
             onClick={handleClearAll}
             className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md text-sm transition-colors">
-            Clear All history
+            Bersihkan Semua
           </button>
         )}
       </div>
@@ -112,23 +122,24 @@ const HistoryPage: React.FC = () => {
             ))}
           </div>
 
-          {/* Pagination Controls */}
-          <div className="mt-10 flex justify-center items-center gap-4">
+          <div className="mt-10 flex justify-between items-center">
               <button
                 onClick={() => historyData?.prev_page_url && fetchHistories(historyData.prev_page_url)}
-                disabled={!historyData?.prev_page_url || loading}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded disabled:opacity-50"
+                disabled={!historyData?.prev_page_url || pageLoading}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md disabled:opacity-50"
               >
+                {pageLoading && <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />}
                 Previous
               </button>
-              <span>
-                Page {historyData?.current_page} of {historyData?.last_page}
+              <span className="text-sm text-slate-700 dark:text-slate-400">
+                Halaman {historyData?.current_page} dari {historyData?.last_page}
               </span>
               <button
                 onClick={() => historyData?.next_page_url && fetchHistories(historyData.next_page_url)}
-                disabled={!historyData?.next_page_url || loading}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded disabled:opacity-50"
+                disabled={!historyData?.next_page_url || pageLoading}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md disabled:opacity-50"
               >
+                {pageLoading && <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />}
                 Next
               </button>
           </div>

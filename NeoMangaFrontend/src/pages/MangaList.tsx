@@ -3,12 +3,15 @@ import { useSearchParams } from 'react-router-dom';
 import type { MangaItem, Genre } from '../types/manga';
 import apiRoutes from '../routes/route';
 import MangaCard from '../components/MangaCard';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 const MangaListPage: React.FC = () => {
   const [mangas, setMangas] = useState<MangaItem[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [loading, setLoading] = useState<boolean>(true);
+  const [initialLoading, setInitialLoading] = useState<boolean>(true);
+  const [pageLoading, setPageLoading] = useState<boolean>(false);
   const [isGenreModalOpen, setIsGenreModalOpen] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -25,7 +28,13 @@ const MangaListPage: React.FC = () => {
 
   useEffect(() => {
     const fetchMangaList = async () => {
-      setLoading(true);
+      const page = parseInt(searchParams.get('page') || '1', 10);
+      if (page === 1) {
+        setInitialLoading(true);
+      } else {
+        setPageLoading(true);
+      }
+
       try {
         const response = await apiRoutes.get(`/manga-list?${searchParams.toString()}`);
         setMangas(response.data.mangas?.data || []);
@@ -36,13 +45,18 @@ const MangaListPage: React.FC = () => {
         }
       } catch (error) {
         console.error("Failed to fetch manga list", error);
+        setMangas([]); 
       } finally {
-        setLoading(false);
+        setInitialLoading(false);
+        setPageLoading(false);
       }
     };
     
     fetchMangaList();
-  }, [searchParams]);
+    if (parseInt(searchParams.get('page') || '1', 10) > 1) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [searchParams, genres.length]);
 
   const handleFilterUpdate = (newParams: Record<string, string | string[]>) => {
     const params = new URLSearchParams(searchParams);
@@ -51,7 +65,7 @@ const MangaListPage: React.FC = () => {
       params.delete(`${key}[]`);
       const value = newParams[key];
       if (Array.isArray(value)) {
-        value.forEach(v => params.append(`${key}[]`, v));
+        value.forEach(v => params.append(`${key}[]`, String(v)));
       } else if (value) {
         params.set(key, value);
       }
@@ -125,30 +139,30 @@ const MangaListPage: React.FC = () => {
       </div>
 
       {isGenreModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setIsGenreModalOpen(false)}>
-          <div className="w-full max-w-2xl mx-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl flex flex-col" onClick={e => e.stopPropagation()}>
-            <div className="p-5 border-b border-gray-200 dark:border-gray-700"><h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Pilih Genre</h3></div>
-            <div className="p-6 max-h-[60vh] overflow-y-auto">
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {genres.map(genre => (
-                  <label key={genre.id} className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer ${tempSelectedGenres.includes(genre.id) ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500' : 'border-gray-300 dark:border-gray-600'}`}>
-                    <input type="checkbox" value={genre.id} checked={tempSelectedGenres.includes(genre.id)} onChange={() => setTempSelectedGenres(p => p.includes(genre.id) ? p.filter(id => id !== genre.id) : [...p, genre.id])} className="h-4 w-4 rounded border-gray-300 text-blue-600" />
-                    <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{genre.name}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t flex justify-end items-center space-x-3">
-              <button type="button" onClick={() => setIsGenreModalOpen(false)} className="px-4 py-2 border rounded-md">Batal</button>
-              <button type="button" onClick={handleApplyGenres} className="px-6 py-2 bg-blue-600 text-white rounded-md">Terapkan</button>
-            </div>
-          </div>
-        </div>
+         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setIsGenreModalOpen(false)}>
+         <div className="w-full max-w-2xl mx-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl flex flex-col" onClick={e => e.stopPropagation()}>
+           <div className="p-5 border-b border-gray-200 dark:border-gray-700"><h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Pilih Genre</h3></div>
+           <div className="p-6 max-h-[60vh] overflow-y-auto">
+             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+               {genres.map(genre => (
+                 <label key={genre.id} className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer ${tempSelectedGenres.includes(genre.id) ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500' : 'border-gray-300 dark:border-gray-600'}`}>
+                   <input type="checkbox" value={genre.id} checked={tempSelectedGenres.includes(genre.id)} onChange={() => setTempSelectedGenres(p => p.includes(genre.id) ? p.filter(id => id !== genre.id) : [...p, genre.id])} className="h-4 w-4 rounded border-gray-300 text-blue-600" />
+                   <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{genre.name}</span>
+                 </label>
+               ))}
+             </div>
+           </div>
+           <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t flex justify-end items-center space-x-3">
+             <button type="button" onClick={() => setIsGenreModalOpen(false)} className="px-4 py-2 border rounded-md">Batal</button>
+             <button type="button" onClick={handleApplyGenres} className="px-6 py-2 bg-blue-600 text-white rounded-md">Terapkan</button>
+           </div>
+         </div>
+       </div>
       )}
 
-      {loading && <div className="text-center py-20">Loading...</div>}
-      
-      {!loading && mangas.length > 0 && (
+      {initialLoading ? (
+        <div className="flex justify-center items-center h-96"><FontAwesomeIcon icon={faSpinner} spin size="3x" /></div>
+      ) : mangas.length > 0 ? (
         <>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-x-4 gap-y-8">
             {mangas.map(manga => <MangaCard key={manga.id} manga={manga} />)}
@@ -156,16 +170,17 @@ const MangaListPage: React.FC = () => {
           <div className="mt-10">
             {lastPage > 1 && (
               <nav className="flex items-center justify-between">
-                <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md disabled:opacity-50">Previous</button>
+                <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1 || pageLoading} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md disabled:opacity-50">Previous</button>
                 <div className="hidden sm:block text-sm text-gray-700 dark:text-gray-400">Halaman <span>{currentPage}</span> dari <span>{lastPage}</span></div>
-                <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === lastPage} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md disabled:opacity-50">Next</button>
+                <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === lastPage || pageLoading} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md disabled:opacity-50">
+                  {pageLoading && <FontAwesomeIcon icon={faSpinner} spin className="mr-2" />}
+                  Next
+                </button>
               </nav>
             )}
           </div>
         </>
-      )}
-
-      {!loading && mangas.length === 0 && (
+      ) : (
         <div className="text-center py-20 rounded-lg bg-gray-100 dark:bg-gray-800">
           <svg className="w-16 h-16 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
           <h3 className="text-xl font-medium mb-2">Tidak Ada Hasil Ditemukan</h3>

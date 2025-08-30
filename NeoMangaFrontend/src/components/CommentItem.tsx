@@ -11,11 +11,18 @@ import { toggleLike } from '../services/CommentService';
 interface CommentItemProps {
   comment: Comment;
   mangaId: number;
+  chapterId: number;
   onReplyPosted: (newReply: Comment) => void;
   onDelete: (commentId: number) => void;
 }
 
-const CommentItem: React.FC<CommentItemProps> = ({ comment, mangaId, onReplyPosted, onDelete }) => {
+const CommentItem: React.FC<CommentItemProps> = ({
+  comment,
+  mangaId,
+  chapterId,
+  onReplyPosted,
+  onDelete,
+}) => {
   const { user, isAuthenticated } = useAuth();
   const [isReplying, setIsReplying] = useState(false);
   const [likeCount, setLikeCount] = useState(comment.likes_count);
@@ -80,6 +87,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, mangaId, onReplyPost
           <div className="mt-4">
             <CommentForm
               mangaId={mangaId}
+              chapterId={chapterId}
               parentId={comment.id}
               onCommentPosted={handleReplySuccess}
               onCancel={() => setIsReplying(false)}
@@ -89,7 +97,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, mangaId, onReplyPost
         )}
         <div className="mt-4 ml-8 space-y-4">
           {comment.replies.map(reply => (
-            <CommentItem key={reply.id} comment={reply} mangaId={mangaId} onReplyPosted={onReplyPosted} onDelete={onDelete} />
+            <CommentItem key={reply.id} comment={reply} mangaId={mangaId} chapterId={chapterId} onReplyPosted={onReplyPosted} onDelete={onDelete} />
           ))}
         </div>
       </div>

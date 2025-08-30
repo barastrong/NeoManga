@@ -37,7 +37,7 @@ const ChapterNavigationControls: React.FC<ChapterNavigationProps> = ({ currentCh
     const isDisabled = !chapter;
     const isPrev = direction === 'prev';
     const linkTo = chapter ? `/chapter/${chapter.slug}` : `/manga/${mangaSlug}`;
-    const title = chapter ? `${isPrev ? 'Previous' : 'Next'} Chapter` : 'Back to Manga Info';
+    const title = chapter ? `${isPrev ? 'Previous' : 'Next'} Chapter` : 'Back to Manga';
 
     return (
       <Link

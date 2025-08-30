@@ -1,8 +1,23 @@
 import apiRoutes from '../routes/route';
 import type { Comment } from '../types/manga';
 
-export const postComment = async (mangaId: number, content: string, parentId?: number): Promise<Comment> => {
-  const response = await apiRoutes.post('/comments', { manga_id: mangaId, content, parent_id: parentId });
+export const getCommentsForChapter = async (chapterId: number): Promise<Comment[]> => {
+  const response = await apiRoutes.get(`/chapters/${chapterId}/comments`);
+  return response.data.data;
+};
+
+export const postComment = async (
+  mangaId: number,
+  chapterId: number,
+  content: string,
+  parentId?: number
+): Promise<Comment> => {
+  const response = await apiRoutes.post('/comments', {
+    manga_id: mangaId,
+    chapter_id: chapterId,
+    content,
+    parent_id: parentId,
+  });
   return response.data;
 };
 

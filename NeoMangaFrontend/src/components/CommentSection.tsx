@@ -1,88 +1,105 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import React, { useState, useEffect, useCallback } from 'react';
+import { getCommentsForChapter, deleteComment } from '../services/CommentService';
+import type { Comment } from '../types/manga';
 import CommentForm from './CommentForm';
 import CommentItem from './CommentItem';
-import type { Comment } from '../types/manga';
-import { deleteComment } from '../services/CommentService';
-import ConfirmationModal from './ConfirmationModal';
+import { useAuth } from '../context/AuthContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner, faComments } from '@fortawesome/free-solid-svg-icons';
 
-const CommentSection: React.FC<{ initialComments: Comment[], mangaId: number }> = ({ initialComments, mangaId }) => {
+interface CommentSectionProps {
+  mangaId: number;
+  chapterId: number;
+}
+
+const CommentSection: React.FC<CommentSectionProps> = ({ mangaId, chapterId }) => {
   const { isAuthenticated } = useAuth();
-  const [comments, setComments] = useState<Comment[]>(initialComments);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [commentToDelete, setCommentToDelete] = useState<number | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleCommentPosted = (newItem: Comment) => {
-    setComments(currentComments => {
-      if (newItem.parent_id) {
-        const updateReplies = (comments: Comment[]): Comment[] => comments.map(c => c.id === newItem.parent_id ? { ...c, replies: [...c.replies, newItem] } : { ...c, replies: updateReplies(c.replies) });
-        return updateReplies(currentComments);
-      }
-      return [newItem, ...currentComments];
-    });
-  };
-  
-  const promptDeleteComment = (commentId: number) => {
-    setCommentToDelete(commentId);
-    setIsModalOpen(true);
-  };
-
-  const confirmDeleteComment = async () => {
-    if (commentToDelete === null) return;
+  const fetchComments = useCallback(async () => {
     try {
-      await deleteComment(commentToDelete);
-      const filterOutComment = (comments: Comment[]): Comment[] => comments.filter(c => c.id !== commentToDelete).map(c => ({ ...c, replies: filterOutComment(c.replies) }));
-      setComments(currentComments => filterOutComment(currentComments));
+      setLoading(true);
+      const fetchedComments = await getCommentsForChapter(chapterId);
+      setComments(fetchedComments);
     } catch (error) {
-      console.error("Gagal menghapus komentar", error);
+      console.error("Gagal memuat komentar:", error);
     } finally {
-      setIsModalOpen(false);
-      setCommentToDelete(null);
+      setLoading(false);
+    }
+  }, [chapterId]);
+
+  useEffect(() => {
+    fetchComments();
+  }, [fetchComments]);
+
+  const handleCommentPosted = (newComment: Comment) => {
+    if (newComment.parent_id) {
+      setComments(prevComments => 
+        prevComments.map(comment => 
+          comment.id === newComment.parent_id
+            ? { ...comment, replies: [newComment, ...comment.replies] }
+            : comment
+        )
+      );
+    } else {
+      setComments(prevComments => [newComment, ...prevComments]);
     }
   };
   
+  const handleDelete = async (commentId: number) => {
+    if (!window.confirm("Apakah Anda yakin ingin menghapus komentar ini?")) return;
+    try {
+      await deleteComment(commentId);
+      setComments(prev => 
+        prev.map(c => ({
+          ...c,
+          replies: c.replies.filter(r => r.id !== commentId)
+        })).filter(c => c.id !== commentId)
+      );
+    } catch (error) {
+      console.error("Gagal menghapus komentar:", error);
+    }
+  };
+
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-lg border border-slate-200 dark:border-slate-700">
-      <h2 className="text-2xl font-bold mb-6 text-slate-800 dark:text-white">Komentar ({comments.reduce((acc, c) => acc + 1 + c.replies.length, 0)})</h2>
-      {isAuthenticated ? (
-        <CommentForm mangaId={mangaId} onCommentPosted={handleCommentPosted} />
-      ) : (
-        <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-8 text-center mb-8">
-          <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Gabung Diskusi!</h3>
-          <p className="mt-2 text-slate-600 dark:text-slate-400">Anda harus login untuk mengirim komentar.</p>
-          <Link to="/login" state={{ from: window.location }}>
-            <button className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
-              Login untuk Berkomentar
-            </button>
-          </Link>
-        </div>
+    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 sm:p-6 shadow-lg">
+      <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center">
+        <FontAwesomeIcon icon={faComments} className="mr-3 text-red-500" />
+        Komentar
+      </h2>
+      
+      {isAuthenticated && (
+        <CommentForm
+          mangaId={mangaId}
+          chapterId={chapterId}
+          onCommentPosted={handleCommentPosted}
+        />
       )}
+      
       <div className="space-y-6">
-        {comments.length > 0 ? (
+        {loading ? (
+          <div className="text-center py-8">
+            <FontAwesomeIcon icon={faSpinner} spin size="2x" className="text-slate-400" />
+            <p className="mt-2 text-slate-500 dark:text-slate-400">Memuat komentar...</p>
+          </div>
+        ) : comments.length > 0 ? (
           comments.map(comment => (
-            <CommentItem 
-              key={comment.id} 
-              comment={comment} 
-              mangaId={mangaId} 
-              onReplyPosted={handleCommentPosted} 
-              onDelete={promptDeleteComment}
+            <CommentItem
+              key={comment.id}
+              comment={comment}
+              mangaId={mangaId}
+              chapterId={chapterId}
+              onReplyPosted={handleCommentPosted}
+              onDelete={handleDelete}
             />
           ))
         ) : (
           <div className="text-center py-8 text-slate-500 dark:text-slate-400">
-            Belum ada komentar. Jadilah yang pertama berkomentar!
+            <p>Jadilah yang pertama berkomentar!</p>
           </div>
         )}
       </div>
-
-      <ConfirmationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={confirmDeleteComment}
-        title="Konfirmasi Hapus Komentar"
-        message="Apakah Anda yakin ingin menghapus komentar ini secara permanen? Tindakan ini tidak dapat diurungkan."
-      />
     </div>
   );
 };

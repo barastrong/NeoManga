@@ -4,12 +4,22 @@ import { postComment } from '../services/CommentService';
 import type { Comment } from '../types/manga';
 
 interface CommentFormProps {
-  mangaId: number; parentId?: number;
+  mangaId: number;
+  chapterId: number;
+  parentId?: number;
   onCommentPosted: (newComment: Comment) => void;
-  onCancel?: () => void; initialContent?: string;
+  onCancel?: () => void;
+  initialContent?: string;
 }
 
-const CommentForm: React.FC<CommentFormProps> = ({ mangaId, parentId, onCommentPosted, onCancel, initialContent = '' }) => {
+const CommentForm: React.FC<CommentFormProps> = ({
+  mangaId,
+  chapterId,
+  parentId,
+  onCommentPosted,
+  onCancel,
+  initialContent = '',
+}) => {
   const { user } = useAuth();
   const [content, setContent] = useState(initialContent);
   const [loading, setLoading] = useState(false);
@@ -19,12 +29,12 @@ const CommentForm: React.FC<CommentFormProps> = ({ mangaId, parentId, onCommentP
     if (!content.trim()) return;
     setLoading(true);
     try {
-      const newComment = await postComment(mangaId, content, parentId);
+      const newComment = await postComment(mangaId, chapterId, content, parentId);
       onCommentPosted(newComment);
       setContent('');
       if (onCancel) onCancel();
     } catch (error) {
-      console.error("Gagal mengirim komentar:", error);
+      console.error('Gagal mengirim komentar:', error);
     } finally {
       setLoading(false);
     }

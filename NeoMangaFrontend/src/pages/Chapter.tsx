@@ -3,9 +3,10 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import apiRoutes from '../routes/route';
 import type { ChapterDetail, ChapterNavigation } from '../types/manga';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner, faHome, faBookOpen } from '@fortawesome/free-solid-svg-icons';
+import { faSpinner, faHome } from '@fortawesome/free-solid-svg-icons';
 import ChapterNavigationControls from '../components/ChapterNavigationControls';
 import ChapterReader from '../components/ChapterReader';
+import CommentSection from '../components/CommentSection';
 
 const ChapterPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -93,6 +94,13 @@ const ChapterPage: React.FC = () => {
               nextChapter={next_chapter}
               allChapters={all_chapters}
               mangaSlug={chapter.manga.slug}
+            />
+          </div>
+          
+          <div id="comment-section" className="mt-8">
+            <CommentSection 
+              mangaId={chapter.manga.id} 
+              chapterId={chapter.id} 
             />
           </div>
           

@@ -41,7 +41,8 @@ const getTypeFlag = (type: string) => {
 };
 
 const HistoryCard: React.FC<HistoryCardProps> = ({ history, onDelete }) => {
-  if (!history.manga) return null; // Jangan render jika data manga tidak ada
+  if (!history.manga) 
+    return null; // Jangan render jika data manga tidak ada
 
   const flag = getTypeFlag(history.manga.type || '');
   const roundedRating = Math.round((history.manga.ratings_avg_rating || 0) * 2) / 2;
