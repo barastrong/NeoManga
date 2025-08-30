@@ -4,18 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\History;
+use App\Models\Manga;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
 
 class ApiHistoryController extends Controller
 {
-    /**
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
-        $user = $request->user(); 
+        $user = $request->user();
 
         $latestHistorySubquery = History::selectRaw('MAX(id) as id')
             ->where('user_id', $user->id)
@@ -23,23 +20,18 @@ class ApiHistoryController extends Controller
 
         $histories = History::with([
                 'manga' => function ($query) {
-                    $query->withAvg('ratings', 'rating');
+                    $query->withCount('chapters')->withAvg('ratings', 'rating');
                 },
                 'chapter'
             ])
             ->whereIn('id', $latestHistorySubquery)
             ->latest('id')
-            ->paginate(18); // Pagination untuk API
+            ->paginate(18);
 
         return response()->json($histories);
     }
 
-    /**
-     *
-     * @param  \App\Models\History  $history
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function destroy(Request $request, History $history)
+    public function destroy(Request $request, History $history): JsonResponse
     {
         if ($history->user_id !== $request->user()->id) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -47,31 +39,22 @@ class ApiHistoryController extends Controller
 
         $history->delete();
 
-        return response()->json(['message' => 'Riwayat berhasil dihapus.']);
+        return response()->json(null, 204);
     }
 
-    /**
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function clearAll(Request $request)
+    public function clearAll(Request $request): JsonResponse
     {
-        History::where('user_id', $request->user()->id)->delete();
+        $request->user()->histories()->delete();
 
-        return response()->json(['message' => 'Semua riwayat telah berhasil dibersihkan.']);
+        return response()->json(null, 204);
     }
 
-    /**
-     *
-     * @param  int  $mangaId
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function clearForManga(Request $request, $mangaId)
+    public function clearForManga(Request $request, Manga $manga): JsonResponse
     {
         History::where('user_id', $request->user()->id)
-               ->where('manga_id', $mangaId)
+               ->where('manga_id', $manga->id)
                ->delete();
 
-        return response()->json(['message' => 'Riwayat untuk manga ini telah direset.']);
+        return response()->json(null, 204);
     }
 }

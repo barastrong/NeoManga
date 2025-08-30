@@ -8,6 +8,24 @@ use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\AdminPanelController;
+
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('/dashboard', [AdminPanelController::class, 'index'])->name('dashboard');
+    Route::get('/manga', [AdminPanelController::class, 'mangaIndex'])->name('manga.index');
+    Route::get('/manga/create', [AdminPanelController::class, 'mangaCreate'])->name('manga.create');
+    Route::post('/manga', [AdminPanelController::class, 'mangaStore'])->name('manga.store');
+    Route::get('/manga/{manga}/edit', [AdminPanelController::class, 'mangaEdit'])->name('manga.edit');
+    Route::put('/manga/{manga}', [AdminPanelController::class, 'mangaUpdate'])->name('manga.update');
+    Route::delete('/manga/{manga}', [AdminPanelController::class, 'mangaDestroy'])->name('manga.destroy');
+    Route::get('/users', [AdminPanelController::class, 'userIndex'])->name('user.index');
+    Route::get('/manga/{manga}/chapters', [AdminPanelController::class, 'chapterIndex'])->name('manga.chapters.index');
+    Route::get('/manga/{manga}/chapters/create', [AdminPanelController::class, 'chapterCreate'])->name('manga.chapters.create');
+    Route::post('/manga/{manga}/chapters', [AdminPanelController::class, 'chapterStore'])->name('manga.chapters.store');
+    Route::get('/manga/{manga}/chapters/{chapter}/edit', [AdminPanelController::class, 'chapterEdit'])->name('manga.chapters.edit');
+    Route::put('/manga/{manga}/chapters/{chapter}', [AdminPanelController::class, 'chapterUpdate'])->name('manga.chapters.update');
+    Route::delete('/manga/{manga}/chapters/{chapter}', [AdminPanelController::class, 'chapterDestroy'])->name('manga.chapters.destroy');
+});
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/content/{slug}', [MangaController::class, 'show'])->name('manga.show');
@@ -33,7 +51,6 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::delete('/history/{history}', [HistoryController::class, 'destroy'])->name('history.destroy');
     Route::delete('/history', [HistoryController::class, 'clear'])->name('history.clear');
     Route::post('/manga/{mangaId}/history/reset', [HistoryController::class, 'resetForManga'])->name('history.resetForManga');
-
 });
 
 require __DIR__.'/auth.php';

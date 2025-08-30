@@ -97,3 +97,4 @@ class ApiCommentController extends Controller
         $comment->delete();
         return response()->json(null, 204);
     }
+}

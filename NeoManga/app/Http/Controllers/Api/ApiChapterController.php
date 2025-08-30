@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Chapter;
 use App\Models\History;
+use App\Models\Comment;
 use Illuminate\Http\Request;
 
 class ApiChapterController extends Controller
@@ -40,5 +41,36 @@ class ApiChapterController extends Controller
             'next_chapter' => $nextChapter,
             'all_chapters' => $mangaChapters,
         ]);
+    }
+    public function getComments(Request $request, Chapter $chapter)
+    {
+        $user = $request->user();
+
+        $comments = Comment::where('chapter_id', $chapter->id)
+            ->whereNull('parent_id')
+            ->with(['user', 'replies.user', 'likes'])
+            ->latest()
+            ->paginate(15);
+
+        $comments->getCollection()->transform(function ($comment) use ($user) {
+            if ($user) {
+                $comment->is_liked_by_user = $comment->likes()->where('user_id', $user->id)->exists();
+            } else {
+                $comment->is_liked_by_user = false;
+            }
+
+            $comment->replies->transform(function ($reply) use ($user) {
+                if ($user) {
+                    $reply->is_liked_by_user = $reply->likes()->where('user_id', $user->id)->exists();
+                } else {
+                    $reply->is_liked_by_user = false;
+                }
+                return $reply;
+            });
+            
+            return $comment;
+        });
+
+        return response()->json($comments);
     }
 }

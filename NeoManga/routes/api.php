@@ -40,4 +40,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/comments', [ApiCommentController::class, 'store']);
     Route::post('/comments/{comment}/like', [ApiCommentController::class, 'toggleLike']);
     Route::delete('/comments/{comment}', [ApiCommentController::class, 'destroy']);
+    
+    Route::get('/chapters/{chapter}/comments', [ApiChapterController::class, 'getComments']);
 });

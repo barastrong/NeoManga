@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 class ApiProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
             $popularMangaIds = History::query()
@@ -33,10 +33,15 @@ class ApiProductController extends Controller
                     ->get();
             }
             
-            $mangas = Manga::with('latestPublishedChapter')
+            $mangas = Manga::with(['latestPublishedChapter'])
                 ->withAvg('ratings', 'rating')
-                ->whereHas('chapters', fn($q) => $q->where('status', 'published'))
-                ->latest('updated_at')
+                ->whereHas('chapters', function ($query) {
+                    $query->where('status', 'published');
+                })
+                ->withMax(['latestPublishedChapter as latest_chapter_date' => function ($query) {
+                    $query->where('status', 'published');
+                }], 'created_at')
+                ->orderByDesc('latest_chapter_date')
                 ->paginate(25);
 
             $mangas->getCollection()->transform(function ($manga) {
@@ -95,41 +100,40 @@ class ApiProductController extends Controller
         return response()->json(['mangas' => $mangas, 'genres' => $genres]);
     }
 
-public function show(Request $request, Manga $manga)
-{
-    $manga->load([
-        'genres', 
-        'user', 
-        'comments' => fn($q) => $q->whereNull('parent_id')->with(['user', 'replies.user'])->latest()
-    ]);
-    
-    $chapters = $manga->chapters()->published()->orderBy('number', 'desc')->get();
-    
-    $user = $request->user();
-    $isBookmarked = false;
-    $readChapters = [];
-    $userHistories = [];
-
-    if ($user) {
-        $isBookmarked = $manga->bookmarks()->where('user_id', $user->id)->exists();
+    public function show(Request $request, Manga $manga)
+    {
+        $manga->load([
+            'genres', 
+            'user', 
+            'comments' => fn($q) => $q->whereNull('parent_id')->with(['user', 'replies.user'])->latest()
+        ]);
         
-        $readChapters = $user->histories()->where('manga_id', $manga->id)->pluck('chapter_id')->all();
+        $chapters = $manga->chapters()->published()->orderBy('number', 'desc')->get();
+        
+        $user = $request->user();
+        $isBookmarked = false;
+        $readChapters = [];
+        $userHistories = [];
 
-        $userHistories = $user->histories()
-            ->where('manga_id', $manga->id)
-            ->with('chapter:id,slug,number') // Eager load chapter yang relevan
-            ->latest('updated_at')
-            ->take(5)
-            ->get();
+        if ($user) {
+            $isBookmarked = $manga->bookmarks()->where('user_id', $user->id)->exists();
+            
+            $readChapters = $user->histories()->where('manga_id', $manga->id)->pluck('chapter_id')->all();
+
+            $userHistories = $user->histories()
+                ->where('manga_id', $manga->id)
+                ->with('chapter:id,slug,number')
+                ->latest('updated_at')
+                ->take(5)
+                ->get();
+        }
+
+        return response()->json([
+            'manga' => $manga,
+            'chapters' => $chapters,
+            'isBookmarked' => $isBookmarked,
+            'readChapters' => $readChapters,
+            'userHistories' => $userHistories,
+        ]);
     }
-
-    // Kembalikan semua data dalam satu JSON
-    return response()->json([
-        'manga' => $manga,
-        'chapters' => $chapters,
-        'isBookmarked' => $isBookmarked,
-        'readChapters' => $readChapters,
-        'userHistories' => $userHistories,
-    ]);
-}
 }

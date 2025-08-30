@@ -120,7 +120,7 @@
 
                             @auth
                                 @if(Auth::check() && Auth::user()->isAdmin())
-                                    <a href="{{ url('/admin') }}" aria-label="Admin Panel" class="btn-icon bg-red-500/10 text-red-600 hover:bg-red-500/20">
+                                    <a href="{{ route('admin.dashboard') }}" aria-label="Admin Panel" class="btn-icon bg-red-500/10 text-red-600 hover:bg-red-500/20">
                                         <i class="fa-solid fa-user-shield"></i>
                                     </a>
                                 @endif
