@@ -6,6 +6,7 @@
     <title>Admin Panel - Manga Site</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         [x-cloak] { display: none !important; }
     </style>
@@ -14,34 +15,49 @@
 
 <div x-data="{ sidebarOpen: false }" class="relative min-h-screen lg:flex">
 
-    <!-- Overlay untuk mobile saat sidebar terbuka -->
     <div 
         x-show="sidebarOpen" 
         @click="sidebarOpen = false" 
-        class="fixed inset-0 z-20 bg-black opacity-50 transition-opacity lg:hidden"
+        class="fixed inset-0 z-20 bg-black/50 transition-opacity lg:hidden"
         x-cloak
     ></div>
 
-    <!-- Sidebar -->
     <aside 
         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-        class="fixed inset-y-0 left-0 z-30 w-64 bg-slate-800 text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0"
+        class="fixed inset-y-0 left-0 z-30 w-64 bg-slate-900 text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0"
     >
-        <div class="flex items-center justify-center h-16 bg-slate-900">
-            <a href="{{ route('admin.dashboard') }}" class="text-2xl font-bold tracking-wider">AdminPanel</a>
+        <div class="flex items-center justify-center px-6 h-20 border-b border-slate-800">
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center text-white">
+                <i class="fa-solid fa-shield-halved fa-lg text-indigo-400"></i>
+                <span class="ml-3 text-xl font-bold tracking-wider">AdminPanel</span>
+            </a>
         </div>
 
-        <nav class="mt-8">
-            <a href="{{ route('admin.dashboard') }}" class="flex items-center px-6 py-3 mt-4 duration-200 border-l-4 {{ request()->routeIs('admin.dashboard') ? 'bg-slate-700 border-indigo-500' : 'border-slate-800' }} hover:bg-slate-700 hover:border-indigo-500">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+        <nav class="mt-4 px-3">
+            <a href="{{ route('admin.dashboard') }}" 
+               class="flex items-center rounded-lg px-4 py-3 transition-colors duration-200 border-l-4 
+                      {{ request()->routeIs('admin.dashboard') 
+                         ? 'bg-slate-800 border-indigo-500 text-white' 
+                         : 'border-transparent text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                <i class="fa-solid fa-gauge-high w-6 text-center"></i>
                 <span class="ml-4">Dashboard</span>
             </a>
-            <a href="{{ route('admin.user.index') }}" class="flex items-center px-6 py-3 mt-4 duration-200 border-l-4 {{ request()->routeIs('admin.user.*') ? 'bg-slate-700 border-indigo-500' : 'border-slate-800' }} hover:bg-slate-700 hover:border-indigo-500">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21a6 6 0 00-9-5.197m0 0A10.004 10.004 0 0012 10a10.004 10.004 0 00-3-7.303M15 21a9 9 0 00-6-16.147"></path></svg>
+
+            <a href="{{ route('admin.user.index') }}" 
+               class="mt-2 flex items-center rounded-lg px-4 py-3 transition-colors duration-200 border-l-4 
+                      {{ request()->routeIs('admin.user.*') 
+                         ? 'bg-slate-800 border-indigo-500 text-white' 
+                         : 'border-transparent text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                <i class="fa-solid fa-users w-6 text-center"></i>
                 <span class="ml-4">Users</span>
             </a>
-            <a href="{{ route('admin.manga.index') }}" class="flex items-center px-6 py-3 mt-4 duration-200 border-l-4 {{ request()->routeIs('admin.manga.*') ? 'bg-slate-700 border-indigo-500' : 'border-slate-800' }} hover:bg-slate-700 hover:border-indigo-500">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v11.494m-9-5.747h18"></path></svg>
+            
+            <a href="{{ route('admin.manga.index') }}" 
+               class="mt-2 flex items-center rounded-lg px-4 py-3 transition-colors duration-200 border-l-4 
+                      {{ request()->routeIs('admin.manga.*') 
+                         ? 'bg-slate-800 border-indigo-500 text-white' 
+                         : 'border-transparent text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                <i class="fa-solid fa-book-open w-6 text-center"></i>
                 <span class="ml-4">Manga</span>
             </a>
         </nav>

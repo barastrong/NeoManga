@@ -108,7 +108,7 @@ const MangaDetailPage: React.FC = () => {
         setIsBookmarked(data.isBookmarked);
         setReadChapters(data.readChapters);
         setUserHistories(data.userHistories);
-        setFollowersCount(data.manga.followers_count);
+        setFollowersCount(data.manga.followers_count || 0);
       } catch (error) {
         console.error("Gagal memuat detail manga", error);
         navigate('/not-found', { replace: true });
@@ -133,7 +133,7 @@ const MangaDetailPage: React.FC = () => {
     try {
       const response = await toggleBookmark(manga.slug);
       setIsBookmarked(response.is_bookmarked);
-      setFollowersCount(response.followers_count);
+      setFollowersCount(response.followers_count || 0);
     } catch (error) {
       console.error("Gagal mengubah bookmark", error);
     } finally {
@@ -158,7 +158,7 @@ const MangaDetailPage: React.FC = () => {
         <div className="bg-white dark:bg-slate-800 rounded-lg p-6 mb-8 shadow-lg border border-slate-200 dark:border-slate-700">
           <div className="text-center md:text-left mb-6">
             <h1 className="text-3xl lg:text-4xl font-bold text-slate-800 dark:text-white">{manga.title}</h1>
-            {manga.alternative_title && <h2 className="text-lg text-slate-600 dark:text-slate-400 mt-1 italic">{manga.alternative_title}</h2>}
+            {manga.alternative_title && manga.alternative_title.trim() !== '-' && manga.alternative_title.trim() !== '' && <h2 className="text-lg text-slate-600 dark:text-slate-400 mt-1 italic">{manga.alternative_title}</h2>}
           </div>
           <div className="flex flex-col md:flex-row gap-8">
             <div className="flex-shrink-0 w-full md:w-48">
@@ -175,7 +175,8 @@ const MangaDetailPage: React.FC = () => {
               </div>
             </div>
             <div className="flex-1">
-              <p className="mb-6 leading-relaxed text-slate-700 dark:text-slate-300">{manga.description}</p>
+              {manga.description && manga.description.trim() !== '-' && manga.description.trim() !== '' && 
+              <p className="mb-6 leading-relaxed text-slate-700 dark:text-slate-300">{manga.description}</p>}
               <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
                 <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
                   <DetailItem label="Status" value={manga.status} capitalize />

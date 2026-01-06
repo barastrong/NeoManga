@@ -9,10 +9,12 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import BookmarkPage from './pages/Bookmark';
 import ChapterPage from './pages/Chapter';
+import Snowfall from 'react-snowfall'
 
 const MainLayout = () => {
   return (
     <div className="bg-white dark:bg-slate-900 min-h-screen text-gray-800 dark:text-gray-200 font-sans transition-colors duration-300">
+      <Snowfall />
       <Navbar />
       <main className="container mx-auto px-4 py-8 md:px-6 md:py-10">
         <Outlet />

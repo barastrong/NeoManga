@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ApiAuthController;
 use App\Http\Controllers\Api\ApiBookmarkController;
 use App\Http\Controllers\Api\ApiCommentController;
 use App\Http\Controllers\Api\ApiChapterController;
+use App\Http\Controllers\Api\MangaController;
 
 Route::post('/import-chapter', [ChapterImportController::class, 'store'])
      ->middleware('auth.apikey');
@@ -24,6 +25,14 @@ Route::get('/manga/{manga:slug}', [ApiProductController::class, 'show']);
 Route::get('/search', [ApiProductController::class, 'search']);
 Route::get('/manga-list', [ApiProductController::class, 'mangaList']);
 Route::get('/chapter/{chapter:slug}', [ApiChapterController::class, 'showApi']);
+
+// Manga Store API
+Route::get('/genres', [MangaController::class, 'genres']);
+Route::get('/manga-store', [MangaController::class, 'index']);
+Route::post('/manga-store', [MangaController::class, 'store']);
+Route::get('/manga-store/{manga}', [MangaController::class, 'show']);
+Route::put('/manga-store/{manga}', [MangaController::class, 'update']);
+Route::delete('/manga-store/{manga}', [MangaController::class, 'destroy']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [ApiAuthController::class, 'logout']);
