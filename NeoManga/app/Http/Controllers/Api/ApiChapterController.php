@@ -27,13 +27,22 @@ class ApiChapterController extends Controller
         
         $mangaChapters = $chapter->manga->chapters()
                               ->published()
-                              ->orderBy('number', 'asc')
-                              ->get(['id', 'slug', 'number']);
+                              ->orderBy('created_at', 'asc')
+                              ->get(['id', 'slug', 'number', 'created_at']);
 
-        $currentChapterIndex = $mangaChapters->search(fn($c) => $c->id === $chapter->id);
-
-        $nextChapter = $mangaChapters->get($currentChapterIndex + 1);
-        $prevChapter = $mangaChapters->get($currentChapterIndex - 1);
+        $currentCreatedAt = $chapter->created_at;
+        
+        $prevChapter = $chapter->manga->chapters()
+                              ->published()
+                              ->where('created_at', '<', $currentCreatedAt)
+                              ->orderBy('created_at', 'desc')
+                              ->first(['id', 'slug', 'number']);
+                              
+        $nextChapter = $chapter->manga->chapters()
+                              ->published()
+                              ->where('created_at', '>', $currentCreatedAt)
+                              ->orderBy('created_at', 'asc')
+                              ->first(['id', 'slug', 'number']);
         
         return response()->json([
             'chapter' => $chapter,

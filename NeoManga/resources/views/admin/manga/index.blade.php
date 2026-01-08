@@ -6,10 +6,20 @@
             <h1 class="text-3xl font-bold text-slate-800">Koleksi Manga</h1>
             <p class="mt-1 text-slate-500">Jelajahi, kelola, dan perbarui koleksi manga Anda.</p>
         </div>
-        <a href="{{ route('admin.manga.create') }}" class="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-            <i class="fa-solid fa-plus mr-2"></i>
-            Tambah Manga
-        </a>
+        <div class="flex gap-3">
+            <form action="{{ route('admin.manga.index') }}" method="GET" class="relative">
+                <input type="text" name="search" placeholder="Cari manga..." 
+                       class="w-64 pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                       value="{{ request('search') }}">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa-solid fa-search text-slate-400"></i>
+                </div>
+            </form>
+            <a href="{{ route('admin.manga.create') }}" class="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <i class="fa-solid fa-plus mr-2"></i>
+                Tambah Manga
+            </a>
+        </div>
     </div>
 
     @if (session('success'))
@@ -125,14 +135,14 @@
                     Previous
                 </span>
             @else
-                <a href="{{ $mangas->previousPageUrl() }}" class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <a href="{{ $mangas->appends(request()->query())->previousPageUrl() }}" class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                     <i class="fa-solid fa-arrow-left mr-2"></i>
                     Previous
                 </a>
             @endif
 
             @if ($mangas->hasMorePages())
-                <a href="{{ $mangas->nextPageUrl() }}" class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <a href="{{ $mangas->appends(request()->query())->nextPageUrl() }}" class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                     Next
                     <i class="fa-solid fa-arrow-right ml-2"></i>
                 </a>

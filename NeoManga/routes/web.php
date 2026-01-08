@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\AdminPanelController;
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [AdminPanelController::class, 'index'])->name('dashboard');
+    Route::get('/search', [AdminPanelController::class, 'search'])->name('search');
     Route::get('/manga', [AdminPanelController::class, 'mangaIndex'])->name('manga.index');
     Route::get('/manga/create', [AdminPanelController::class, 'mangaCreate'])->name('manga.create');
     Route::post('/manga', [AdminPanelController::class, 'mangaStore'])->name('manga.store');

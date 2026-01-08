@@ -18,13 +18,13 @@ const MangaListPage: React.FC = () => {
 
   const filters = useMemo(() => ({
     q: searchParams.get('q') || '',
-    genre: searchParams.getAll('genre[]').map(Number),
+    genre: searchParams.get('genre')?.split('%').filter(Boolean) || [],
     status: searchParams.get('status') || '',
     type: searchParams.get('type') || '',
     order: searchParams.get('order') || 'default',
   }), [searchParams]);
 
-  const [tempSelectedGenres, setTempSelectedGenres] = useState<number[]>([]);
+  const [tempSelectedGenres, setTempSelectedGenres] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchMangaList = async () => {
@@ -59,24 +59,42 @@ const MangaListPage: React.FC = () => {
   }, [searchParams, genres.length]);
 
   const handleFilterUpdate = (newParams: Record<string, string | string[]>) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams();
+    
+    // Set page first
+    params.set('page', '1');
+    
+    // Keep existing params except the ones being updated
+    for (const [key, value] of searchParams.entries()) {
+      if (!(key in newParams) && key !== 'page') {
+        params.set(key, value);
+      }
+    }
+    
+    // Set new params
     Object.keys(newParams).forEach(key => {
-      params.delete(key);
-      params.delete(`${key}[]`);
       const value = newParams[key];
-      if (Array.isArray(value)) {
-        value.forEach(v => params.append(`${key}[]`, String(v)));
-      } else if (value) {
+      if (key === 'genre' && Array.isArray(value) && value.length > 0) {
+        params.set('genre', value.join('%'));
+      } else if (value && !Array.isArray(value)) {
         params.set(key, value);
       }
     });
-    params.set('page', '1');
+    
     setSearchParams(params);
   };
   
   const handlePageChange = (newPage: number) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams();
     params.set('page', String(newPage));
+    
+    // Add other existing params
+    for (const [key, value] of searchParams.entries()) {
+      if (key !== 'page') {
+        params.set(key, value);
+      }
+    }
+    
     setSearchParams(params);
   };
 
@@ -86,7 +104,7 @@ const MangaListPage: React.FC = () => {
   };
   
   const handleApplyGenres = () => {
-    handleFilterUpdate({ genre: tempSelectedGenres.map(String), q: '' });
+    handleFilterUpdate({ genre: tempSelectedGenres, q: '' });
     setIsGenreModalOpen(false);
   };
 
@@ -145,8 +163,8 @@ const MangaListPage: React.FC = () => {
            <div className="p-6 max-h-[60vh] overflow-y-auto">
              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                {genres.map(genre => (
-                 <label key={genre.id} className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer ${tempSelectedGenres.includes(genre.id) ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500' : 'border-gray-300 dark:border-gray-600'}`}>
-                   <input type="checkbox" value={genre.id} checked={tempSelectedGenres.includes(genre.id)} onChange={() => setTempSelectedGenres(p => p.includes(genre.id) ? p.filter(id => id !== genre.id) : [...p, genre.id])} className="h-4 w-4 rounded border-gray-300 text-blue-600" />
+                 <label key={genre.id} className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer ${tempSelectedGenres.includes(genre.name) ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500' : 'border-gray-300 dark:border-gray-600'}`}>
+                   <input type="checkbox" value={genre.name} checked={tempSelectedGenres.includes(genre.name)} onChange={() => setTempSelectedGenres(p => p.includes(genre.name) ? p.filter(name => name !== genre.name) : [...p, genre.name])} className="h-4 w-4 rounded border-gray-300 text-blue-600" />
                    <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{genre.name}</span>
                  </label>
                ))}

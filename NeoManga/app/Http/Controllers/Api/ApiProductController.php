@@ -73,8 +73,9 @@ class ApiProductController extends Controller
             $query->where('title', 'like', '%' . $request->input('q') . '%');
         }
 
-        if ($request->filled('genre') && is_array($request->genre)) {
-            $query->whereHas('genres', fn($q) => $q->whereIn('genres.id', $request->genre));
+        if ($request->filled('genre')) {
+            $genreNames = explode('%', $request->genre);
+            $query->whereHas('genres', fn($q) => $q->whereIn('genres.name', $genreNames));
         }
 
         if ($request->filled('status') && $request->status != 'all') {

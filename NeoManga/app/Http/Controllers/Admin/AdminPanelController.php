@@ -23,9 +23,20 @@ class AdminPanelController extends Controller
         return view('admin.dashboard', compact('mangaCount', 'chapterCount', 'userCount', 'latestMangas'));
     }
 
-    public function mangaIndex()
+    public function mangaIndex(Request $request)
     {
-        $mangas = Manga::with('genres')->latest()->paginate(10);
+        $query = Manga::with('genres');
+        
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'LIKE', "%{$search}%")
+                  ->orWhere('author', 'LIKE', "%{$search}%")
+                  ->orWhere('artist', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        $mangas = $query->latest()->paginate(10);
         return view('admin.manga.index', compact('mangas'));
     }
 

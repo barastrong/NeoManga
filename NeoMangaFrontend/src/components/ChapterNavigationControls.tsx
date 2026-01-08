@@ -66,7 +66,7 @@ const ChapterNavigationControls: React.FC<ChapterNavigationProps> = ({ currentCh
           {isOpen && (
             <div className={`absolute left-0 w-full bg-white dark:bg-slate-800 rounded-md shadow-lg max-h-80 overflow-y-auto z-50 border border-slate-200 dark:border-slate-700 ${isBottom ? 'bottom-full mb-2' : 'top-full mt-2'}`}>
               <ul className="text-sm p-1">
-                {allChapters.slice().reverse().map(ch => (
+                {allChapters.slice().sort((a, b) => Number(a.number) - Number(b.number)).map(ch => (
                   <li key={ch.id}>
                     <button
                       onClick={() => handleChapterChange(ch.slug)}
