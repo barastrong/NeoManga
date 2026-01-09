@@ -69,12 +69,18 @@ const CommentSection: React.FC<CommentSectionProps> = ({ mangaId, chapterId }) =
         Komentar
       </h2>
       
-      {isAuthenticated && (
+      {isAuthenticated ? (
         <CommentForm
           mangaId={mangaId}
           chapterId={chapterId}
           onCommentPosted={handleCommentPosted}
         />
+      ) : (
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg text-center">
+          <p className="text-blue-800 dark:text-blue-200">
+            <a href="/login" className="font-semibold underline hover:text-blue-900 dark:hover:text-blue-100">Login</a> untuk berkomentar
+          </p>
+        </div>
       )}
       
       <div className="space-y-6">

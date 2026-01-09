@@ -7,10 +7,12 @@ import { faSpinner, faHome } from '@fortawesome/free-solid-svg-icons';
 import ChapterNavigationControls from '../components/ChapterNavigationControls';
 import ChapterReader from '../components/ChapterReader';
 import CommentSection from '../components/CommentSection';
+import { useAuth } from '../context/AuthContext';
 
 const ChapterPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [data, setData] = useState<{
     chapter: ChapterDetail;
     prev_chapter: ChapterNavigation | null;
@@ -26,6 +28,12 @@ const ChapterPage: React.FC = () => {
       try {
         const response = await apiRoutes.get(`/chapter/${slug}`);
         setData(response.data);
+        
+        // Only track history if user is authenticated
+        if (isAuthenticated && response.data.chapter) {
+          // History is automatically tracked by backend when user is authenticated
+          console.log('Reading history tracked for authenticated user');
+        }
       } catch (error) {
         console.error("Failed to fetch chapter:", error);
         navigate('/not-found');
@@ -35,7 +43,7 @@ const ChapterPage: React.FC = () => {
     };
     fetchChapter();
     window.scrollTo(0, 0);
-  }, [slug, navigate]);
+  }, [slug, navigate, isAuthenticated]);
 
   if (loading || !data) {
     return (
@@ -53,6 +61,14 @@ const ChapterPage: React.FC = () => {
     <div className="min-h-screen">
       <div className="container mx-auto px-2 sm:px-4 py-8">
         <div className="max-w-4xl mx-auto">
+          {!isAuthenticated && (
+            <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                💡 <Link to="/login" className="font-semibold underline hover:text-yellow-900 dark:hover:text-yellow-100">Login</Link> untuk menyimpan riwayat baca Anda
+              </p>
+            </div>
+          )}
+          
           <div className="mb-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 shadow-lg">
             <nav className="flex items-center space-x-2 text-sm text-slate-500 dark:text-slate-400 mb-4 overflow-x-auto whitespace-nowrap">
               <Link to="/" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">

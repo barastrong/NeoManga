@@ -134,7 +134,7 @@ class AdminPanelController extends Controller
 
     public function chapterIndex(Manga $manga)
     {
-        $chapters = $manga->chapters()->latest('number')->paginate(20);
+        $chapters = $manga->chapters()->latest('created_at')->paginate(20);
         return view('admin.chapter.index', compact('manga', 'chapters'));
     }
 

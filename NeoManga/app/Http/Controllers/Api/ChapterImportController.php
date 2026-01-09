@@ -69,7 +69,7 @@ class ChapterImportController extends Controller
      */
     public function checkMangaExists($slug)
     {
-        $manga = Manga::where('slug', $slug)->with('chapters')->first();
+        $manga = Manga::where('slug', $slug)->first();
 
         if (!$manga) {
             return response()->json([
@@ -78,9 +78,11 @@ class ChapterImportController extends Controller
             ]);
         }
         
+        // PERBAIKAN DI SINI: Cast 'number' menjadi DECIMAL agar sorting-nya benar secara angka
         $latestChapterNumber = $manga->chapters()
-                                     ->where('status', 'published') 
-                                     ->max('number');
+                                    ->where('status', 'published') 
+                                    ->selectRaw('MAX(CAST(number AS DECIMAL(10,2))) as max_number')
+                                    ->value('max_number');
 
         return response()->json([
             'exists' => true,

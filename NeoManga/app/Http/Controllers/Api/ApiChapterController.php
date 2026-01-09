@@ -14,6 +14,7 @@ class ApiChapterController extends Controller
     {
         $chapter->load('manga');
 
+        // Only save history if user is authenticated
         if ($request->user()) {
             History::updateOrCreate(
                 [

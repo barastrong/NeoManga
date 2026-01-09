@@ -24,7 +24,11 @@ Route::get('/manga/{manga:slug}', [ApiProductController::class, 'show']);
 
 Route::get('/search', [ApiProductController::class, 'search']);
 Route::get('/manga-list', [ApiProductController::class, 'mangaList']);
-Route::get('/chapter/{chapter:slug}', [ApiChapterController::class, 'showApi']);
+Route::get('/chapter/{chapter:slug}', [ApiChapterController::class, 'showApi'])->middleware('auth.optional');
+Route::get('/chapter/{chapter}/comments', [ApiChapterController::class, 'getComments']);
+Route::post('/comments', [ApiCommentController::class, 'store'])->middleware('auth:sanctum');
+Route::post('/comments/{comment}/like', [ApiCommentController::class, 'toggleLike'])->middleware('auth:sanctum');
+Route::delete('/comments/{comment}', [ApiCommentController::class, 'destroy'])->middleware('auth:sanctum');
 
 // Manga Store API
 Route::get('/genres', [MangaController::class, 'genres']);
@@ -45,10 +49,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bookmarks', [ApiBookmarkController::class, 'index']);
     Route::post('/manga/{manga:slug}/toggle-bookmark', [ApiBookmarkController::class, 'toggle']);
     Route::delete('/bookmarks/{bookmark}', [ApiBookmarkController::class, 'destroy']);
-
-    Route::post('/comments', [ApiCommentController::class, 'store']);
-    Route::post('/comments/{comment}/like', [ApiCommentController::class, 'toggleLike']);
-    Route::delete('/comments/{comment}', [ApiCommentController::class, 'destroy']);
-    
-    Route::get('/chapters/{chapter}/comments', [ApiChapterController::class, 'getComments']);
 });
