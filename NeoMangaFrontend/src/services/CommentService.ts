@@ -1,9 +1,10 @@
 import apiRoutes from '../routes/route';
 import type { Comment } from '../types/manga';
+import { AxiosError } from 'axios';
 
 export const getCommentsForChapter = async (chapterId: number): Promise<Comment[]> => {
   const response = await apiRoutes.get(`/chapter/${chapterId}/comments`);
-  return response.data.data;
+  return response.data.data || response.data;
 };
 
 export const postComment = async (
@@ -27,20 +28,20 @@ export const postComment = async (
       parent_id: parentId,
     });
     
-    console.log('Comment posted successfully:', response.data);
-    console.log(`✅ Comment berhasil diposting di manga "${response.data.manga?.title || 'Unknown'}" chapter ${response.data.chapter?.number || 'Unknown'}`);
+    console.log(`✅ Comment berhasil diposting!`);
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
+    const axiosError = error as AxiosError;
     console.error('Comment post error:', {
-      status: error.response?.status,
-      data: error.response?.data,
-      message: error.message,
-      errors: error.response?.data?.errors,
-      fullResponse: error.response
+      status: axiosError.response?.status,
+      data: axiosError.response?.data,
+      message: axiosError.message,
+      errors: (axiosError.response?.data as { errors?: unknown })?.errors,
+      fullResponse: axiosError.response
     });
     
-    if (error.response?.data?.errors) {
-      console.error('Validation errors:', error.response.data.errors);
+    if ((axiosError.response?.data as { errors?: unknown })?.errors) {
+      console.error('Validation errors:', (axiosError.response?.data as { errors?: unknown }).errors);
     }
     
     throw error;
@@ -48,10 +49,22 @@ export const postComment = async (
 };
 
 export const toggleLike = async (commentId: number): Promise<{ liked: boolean; likes_count: number }> => {
-  const response = await apiRoutes.post(`/comments/${commentId}/like`);
-  return response.data;
+  try {
+    const response = await apiRoutes.post(`/comments/${commentId}/like`);
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    console.error('Like toggle error:', axiosError.response?.data);
+    throw error;
+  }
 };
 
 export const deleteComment = async (commentId: number): Promise<void> => {
-  await apiRoutes.delete(`/comments/${commentId}`);
+  try {
+    await apiRoutes.delete(`/comments/${commentId}`);
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    console.error('Delete comment error:', axiosError.response?.data);
+    throw error;
+  }
 };
