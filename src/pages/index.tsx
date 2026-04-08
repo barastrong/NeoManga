@@ -29,7 +29,9 @@ const HomePage: React.FC = () => {
         popularMangas: MangaItem[];
       }>(`/mangas?page=${page}`);
 
-      const mangaData = response.data.mangas;
+      const mangaData = response.data?.mangas;
+
+      if (!mangaData) throw new Error('Invalid response structure');
 
       setLatestMangas(mangaData.data || []);
       setLastPage(mangaData.last_page || 1);
